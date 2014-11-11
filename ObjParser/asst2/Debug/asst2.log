@@ -1,0 +1,38 @@
+﻿Build started 11/7/2014 8:42:49 PM.
+     1>Project "F:\dev\VS Projects\asst2 - Copy\asst2\asst2.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         F:\Visual Studio Express\VC\bin\CL.exe /c /I"F:\dev\assimp-3.1.1-win-binaries\include" /I"F:\dev\cs432Windows\glew-1.7.0\include" /IF:\dev\cs432Windows\freeglut\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt C:\Users\John\Desktop\asst1s.cpp
+         asst1s.cpp
+     1>c:\users\john\desktop\cs432.h(76): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\john\desktop\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(409): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(421): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(495): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(496): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(497): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(518): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(520): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\asst1s.cpp(253): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\john\desktop\asst1s.cpp(258): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\john\desktop\asst1s.cpp(371): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\asst1s.cpp(372): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\john\desktop\asst1s.cpp(390): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>c:\users\john\desktop\asst1s.cpp(508): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\john\desktop\asst1s.cpp(512): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+       Link:
+         F:\Visual Studio Express\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\dev\VS Projects\asst2 - Copy\Debug\asst2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"F:\dev\assimp-3.1.1-win-binaries\lib32" /LIBPATH:"F:\dev\cs432Windows\glew-1.7.0\lib" /LIBPATH:F:\dev\cs432Windows\freeglut\lib freeglut.lib glew32.lib assimp.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\dev\VS Projects\asst2 - Copy\Debug\asst2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\dev\VS Projects\asst2 - Copy\Debug\asst2.lib" /MACHINE:X86 Debug\cs432.obj
+         Debug\mat.obj
+         Debug\matStack.obj
+         Debug\torus.obj
+         Debug\vec.obj
+         Debug\asst1s.obj
+         Debug\test.obj
+         asst2.vcxproj -> F:\dev\VS Projects\asst2 - Copy\Debug\asst2.exe
+     1>Done Building Project "F:\dev\VS Projects\asst2 - Copy\asst2\asst2.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.50
