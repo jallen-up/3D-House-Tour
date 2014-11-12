@@ -81,7 +81,6 @@
     <ClCompile Include="..\torus.cpp" />
     <ClCompile Include="..\vec.cpp" />
     <ClCompile Include="C:\Users\John\Desktop\asst1s.cpp" />
-    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cs432.h" />
@@ -89,9 +88,6 @@
     <ClInclude Include="..\matStack.h" />
     <ClInclude Include="..\torus.h" />
     <ClInclude Include="..\vec.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
