@@ -90,6 +90,9 @@
     <ClInclude Include="..\torus.h" />
     <ClInclude Include="..\vec.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
