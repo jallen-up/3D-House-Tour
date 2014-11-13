@@ -75,12 +75,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\asst1s.cpp" />
     <ClCompile Include="..\cs432.cpp" />
     <ClCompile Include="..\mat.cpp" />
     <ClCompile Include="..\matStack.cpp" />
     <ClCompile Include="..\torus.cpp" />
     <ClCompile Include="..\vec.cpp" />
-    <ClCompile Include="C:\Users\John\Desktop\asst1s.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cs432.h" />

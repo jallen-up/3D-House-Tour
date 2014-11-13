@@ -30,7 +30,7 @@
     <ClCompile Include="..\vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\John\Desktop\asst1s.cpp">
+    <ClCompile Include="..\asst1s.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
