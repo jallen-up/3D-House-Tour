@@ -61,51 +61,7 @@ int      Axis = Xaxis;
 GLfloat  Theta[NumAxes] = { 0.0, 0.0, 0.0 };
 GLuint   theta;
 
-// default vertext shader code
-#define VERTEX_SHADER_CODE "\
-in  vec4 vPosition;\
-in  vec3 vNormal;\
-in vec2 vTexCoord;\
-out vec2 texCoord;\
-out vec4 color;\
-uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
-uniform mat4 ModelView;\
-uniform mat4 Projection;\
-uniform vec4 LightPosition;\
-uniform float Shininess;\
-void main()\
-{\
-texCoord = vTexCoord;\
-vec3 pos = (ModelView * vPosition).xyz;\
-vec3 L = normalize(LightPosition.xyz - pos);\
-vec3 E = normalize(-pos);\
-vec3 H = normalize(L + E);\
-vec3 N = vNormal;\
-vec4 ambient = AmbientProduct;\
-float Kd = max(dot(L, N), 0.0);\
-vec4  diffuse = Kd*DiffuseProduct;\
-float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-vec4  specular = Ks * SpecularProduct;\
-if (dot(L, N) < 0.0) {\
-specular = vec4(0.0, 0.0, 0.0, 1.0);\
-}\
-gl_Position = Projection * ModelView * vPosition;\
-color = ambient + diffuse + specular;\
-color.a = 1.0;\
-}\
-"
 
-// default fragment shader code
-#define FRAGMENT_SHADER_CODE "\
-in  vec4 color;\
-in vec2 texCoord;\
-out vec4 fColor; \
-uniform sampler2D texture;\
-void main()\
-{\
-fColor = color*texture2D(texture,texCoord);\
-}\
-"
 //----------------------------------------------------------------------------
 // our matrix stack
 static MatrixStack  mvstack;
@@ -566,7 +522,7 @@ static void init(void) {
 	
 
 	// Load shaders and use the resulting shader program
-	GLuint program = InitShader2(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 	glUseProgram(program);
 
 	// set up vertex arrays

@@ -51,4 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="vshader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="fshader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

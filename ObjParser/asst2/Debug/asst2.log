@@ -1,7 +1,40 @@
-﻿Build started 11/13/2014 9:06:28 AM.
+﻿Build started 11/14/2014 6:40:18 PM.
      1>Project "F:\dev\ObjParser\simple-obj-parser\ObjParser\asst2\asst2.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         F:\Visual Studio Express\VC\bin\CL.exe /c /I"F:\dev\assimp-3.1.1-win-binaries\include" /I"F:\dev\cs432Windows\glew-1.7.0\include" /IF:\dev\cs432Windows\freeglut\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\asst1s.cpp
+         F:\Visual Studio Express\VC\bin\CL.exe /c /I"F:\dev\assimp-3.1.1-win-binaries\include" /I"F:\dev\cs432Windows\glew-1.7.0\include" /IF:\dev\cs432Windows\freeglut\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\asst1s.cpp ..\cs432.cpp ..\mat.cpp ..\matStack.cpp ..\torus.cpp ..\vec.cpp
+         vec.cpp
+         torus.cpp
+     1>f:\dev\objparser\simple-obj-parser\objparser\cs432.h(71): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
+     1>f:\dev\objparser\simple-obj-parser\objparser\torus.cpp(40): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\torus.cpp(41): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\torus.cpp(42): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\torus.cpp(43): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+         matStack.cpp
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(409): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(421): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(495): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(496): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(497): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(518): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(520): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+         mat.cpp
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(409): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(421): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(495): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(496): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(497): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(518): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(520): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+         cs432.cpp
+     1>f:\dev\objparser\simple-obj-parser\objparser\cs432.h(71): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
          asst1s.cpp
      1>f:\dev\objparser\simple-obj-parser\objparser\cs432.h(71): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
      1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
@@ -15,12 +48,13 @@
      1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
      1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
      1>f:\dev\objparser\simple-obj-parser\objparser\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(287): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(292): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(405): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(406): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(424): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(592): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(243): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(248): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(361): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(362): warning C4244: '+=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(380): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>f:\dev\objparser\simple-obj-parser\objparser\asst1s.cpp(548): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+         Generating Code...
        Link:
          F:\Visual Studio Express\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\dev\ObjParser\simple-obj-parser\ObjParser\Debug\asst2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"F:\dev\assimp-3.1.1-win-binaries\lib32" /LIBPATH:"F:\dev\cs432Windows\glew-1.7.0\lib" /LIBPATH:F:\dev\cs432Windows\freeglut\lib freeglut.lib glew32.lib assimp.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\dev\ObjParser\simple-obj-parser\ObjParser\Debug\asst2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\dev\ObjParser\simple-obj-parser\ObjParser\Debug\asst2.lib" /MACHINE:X86 Debug\asst1s.obj
          Debug\cs432.obj
@@ -33,4 +67,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.21
+Time Elapsed 00:00:03.25
