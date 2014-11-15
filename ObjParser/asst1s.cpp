@@ -5,6 +5,7 @@
 #include "vec.h"
 #include "mat.h"
 #include "matStack.h"
+#include "ppm.h"
 #include <fstream>
 #include <sstream>
 #include <istream>
@@ -39,7 +40,7 @@ typedef vec4 point4;
 typedef vec4 color4;
 
 // a large number, to ensure that there is enough room
-const int NumVertices = 100000; 
+const int NumVertices = 1000000; 
 
 // arrays of points and colors, to send to the graphics card
 static point4 points[NumVertices];
@@ -47,20 +48,14 @@ static color4 colors[NumVertices];
 static vec3 normals[NumVertices];
 
 
-const int  TextureSize = 64;
+const int  TextureSize = 1024;
+const int trick = 128;
 GLuint textures[2];
 
 GLubyte image[TextureSize][TextureSize][3];
 GLubyte image2[TextureSize][TextureSize][3];
 
 vec2    tex_coords[NumVertices];
-
-// Array of rotation angles (in degrees) for each coordinate axis
-enum { Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3 };
-int      Axis = Xaxis;
-GLfloat  Theta[NumAxes] = { 0.0, 0.0, 0.0 };
-GLuint   theta;
-
 
 //----------------------------------------------------------------------------
 // our matrix stack
@@ -123,7 +118,7 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 		//PARSE TEXTURES
 		else if (line[0] == 'v' && line[1] == 't'){
 			vec2 tempt;
-			string thisLine = line.substr(2);
+			string thisLine = line.substr(3);
 			float val;
 
 			string first = thisLine.substr(0, thisLine.find(' '));
@@ -134,6 +129,7 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			val = (float)atof(second.c_str());
 			tempt.y = val;
 
+			cout << tempt.x << " " << tempt.y << endl;
 			texList.push_back(tempt);
 		}
 		//PARSE NORMALS
@@ -176,8 +172,10 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			pointsArray[*idxVar] = vertList.at(val - 1);
 			
 			string firstt = firstel.substr(firstv.length() + 1, firstel.find('/'));
+			//std::cout << firstt << endl;
 			val = (int)atof(firstt.c_str());
 			texArray[*idxVar] = texList.at(val - 1);
+			//std::cout << texList.at(val - 1).x << " " << texList.at(val - 1).y << endl;
 
 			string firstn = firstel.substr(firstel.find_last_of('/')+1);
 			val = (int)atof(firstn.c_str());
@@ -394,8 +392,6 @@ static void drawScene() {
 		
 		// send the transformation matrix to the GPU
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
-		
-		glUniform3fv(theta, 1, Theta);
 
 		// draw the (transformed) object
 		glDrawArrays(GL_TRIANGLES, objects[i].getStartIdx(), objects[i].getCount());
@@ -459,15 +455,15 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("monkey.obj", &Index, points, colors, normals,tex_coords);
+	objects[0] = genObject("monkey_lowpoly.obj", &Index, points, colors, normals,tex_coords);
 	//objects[1] = genObject("cube.obj", &Index, points, colors, normals, tex_coords);
 	//objects[2] = genShape2(&Index, points, colors);
 	//objects[3] = genShape3(&Index, points, colors);
 	//objects[4] = genShape4(&Index, points, colors);
 
-	// Create a checkerboard pattern
-	for (int i = 0; i < 64; i++) {
-		for (int j = 0; j < 64; j++) {
+	 //Create a checkerboard pattern
+	/*for (int i = 0; i < TextureSize; i++) {
+		for (int j = 0; j < TextureSize; j++) {
 			GLubyte c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0)) * 255;
 			image[i][j][0] = c;
 			image[i][j][1] = c;
@@ -476,15 +472,41 @@ static void init(void) {
 			image2[i][j][1] = 0;
 			image2[i][j][2] = c;
 		}
-	}
+	}*/
 
+	static GLfloat pic[1024][1024][3];
 
+	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+
+	gluScaleImage(
+		GL_RGB, // as in GL_RGB
+		1024, // width of existing image, in pixels
+		1024, // height of existing image, in pixels
+		GL_FLOAT, // type of data in existing image, as in GL_FLOAT
+		pic, // pointer to first element of existing image
+		1024, // width of new image
+		1024, // height of new image
+		GL_BYTE, // type of new image, as in GL_FLOAT
+		image); // pointer to buffer for holding new image
+
+	gluScaleImage(
+		GL_RGB, // as in GL_RGB
+		1024, // width of existing image, in pixels
+		1024, // height of existing image, in pixels
+		GL_FLOAT, // type of data in existing image, as in GL_FLOAT
+		pic, // pointer to first element of existing image
+		1024, // width of new image
+		1024, // height of new image
+		GL_BYTE, // type of new image, as in GL_FLOAT
+		image2); // pointer to buffer for holding new image
+
+	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLubyte*)image2, 0, 0, 2048, 2048);
 	// Initialize texture objects
 	glGenTextures(2, textures);
 
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, image);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -79,6 +79,7 @@
     <ClCompile Include="..\cs432.cpp" />
     <ClCompile Include="..\mat.cpp" />
     <ClCompile Include="..\matStack.cpp" />
+    <ClCompile Include="..\ppm.cpp" />
     <ClCompile Include="..\torus.cpp" />
     <ClCompile Include="..\vec.cpp" />
   </ItemGroup>
@@ -86,6 +87,7 @@
     <ClInclude Include="..\cs432.h" />
     <ClInclude Include="..\mat.h" />
     <ClInclude Include="..\matStack.h" />
+    <ClInclude Include="..\ppm.h" />
     <ClInclude Include="..\torus.h" />
     <ClInclude Include="..\vec.h" />
   </ItemGroup>

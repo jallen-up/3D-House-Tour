@@ -4,5 +4,5 @@ out vec4 fColor;
 uniform sampler2D texture;
 void main()
 {
-fColor = color*texture2D(texture,texCoord);
+fColor = color*texture(texture,texCoord);
 }
