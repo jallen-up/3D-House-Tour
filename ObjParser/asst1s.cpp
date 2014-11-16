@@ -29,6 +29,52 @@ using namespace std;
 
 #define NUM_OBJECTS 5
 
+// define our shader code
+#define VERTEX_SHADER_CODE "\
+attribute vec4 vPosition; \
+attribute vec3 vNormal;\
+attribute vec2 vTexCoord;\
+attribute vec4 vColor;\
+varying vec2 texCoord;\
+varying vec4 color; \
+uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
+uniform mat4 ModelView; \
+uniform mat4 Projection; \
+uniform vec4 VariableColor; \
+uniform vec4 LightPosition;\
+uniform float Shininess;\
+\
+void main() \
+{ \
+texCoord = vTexCoord;\
+vec3 pos = (ModelView * vPosition).xyz;\
+vec3 L = normalize(LightPosition.xyz - pos);\
+vec3 E = normalize(-pos);\
+vec3 H = normalize(L + E);\
+vec3 N = vNormal;\
+vec4 ambient = AmbientProduct;\
+float Kd = max(dot(L, N), 0.0);\
+vec4  diffuse = Kd*DiffuseProduct;\
+float Ks = pow(max(dot(N, H), 0.0), Shininess);\
+vec4  specular = Ks * SpecularProduct;\
+if (dot(L, N) < 0.0) {\
+specular = vec4(0.0, 0.0, 0.0, 1.0);\
+}\
+color = ambient + diffuse + specular;\
+color.a = 1.0;\
+gl_Position = Projection*ModelView*vPosition; \
+}  \
+"
+#define FRAGMENT_SHADER_CODE "\
+attribute vec2 texCoord;\
+varying  vec4 color; \
+uniform sampler2D texture;\
+void main() \
+{ \
+gl_FragColor = color*texture2D(texture,texCoord); \
+} \
+"
+
 // The current spinning angle of our five objects
 static GLfloat globalAngle = 0.0;
 
@@ -57,12 +103,18 @@ GLubyte image2[TextureSize][TextureSize][3];
 
 vec2    tex_coords[NumVertices];
 
+// the amount of time in seconds since the the program started
+GLfloat currentTime = 0.0;
+
+// the current forward speed
+static double currentSpeed = 0.0;
+
 //----------------------------------------------------------------------------
 // our matrix stack
 static MatrixStack  mvstack;
 
 // the model-view matrix, defining the current transformation
-static mat4         model_view;
+static mat4         model_view, model_view_start;
 
 // GPU IDs for the projection and model-view matrices
 static GLuint       ModelView, Projection;
@@ -170,8 +222,10 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			string firstv = firstel.substr(0, firstel.find('/'));
 			val = (int)atof(firstv.c_str());
 			pointsArray[*idxVar] = vertList.at(val - 1);
+
+			string temp = firstel.substr(firstv.length()+1);
+			string firstt = temp.substr(0, temp.find('/'));
 			
-			string firstt = firstel.substr(firstv.length() + 1, firstel.find('/'));
 			//std::cout << firstt << endl;
 			val = (int)atof(firstt.c_str());
 			texArray[*idxVar] = texList.at(val - 1);
@@ -192,7 +246,8 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			val = (int)atof(secondv.c_str());
 			pointsArray[*idxVar] = vertList.at(val - 1);
 
-			string secondt = secondel.substr(secondv.length() + 1, secondel.find('/'));
+			temp = secondel.substr(secondv.length() + 1);
+			string secondt = temp.substr(0, temp.find('/'));
 			val = (int)atof(secondt.c_str());
 			texArray[*idxVar] = texList.at(val - 1);
 
@@ -209,7 +264,8 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			val = (int)atof(thirdv.c_str());
 			pointsArray[*idxVar] = vertList.at(val - 1);
 
-			string thirdt = thirdel.substr(thirdv.length() + 1, thirdel.find('/'));
+			temp = thirdel.substr(thirdv.length() + 1);
+			string thirdt = temp.substr(0, temp.find('/'));
 			val = (int)atof(thirdt.c_str());
 			texArray[*idxVar] = texList.at(val - 1);
 
@@ -372,6 +428,8 @@ static void drawScene() {
 	// clear scene, handle depth
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	model_view = model_view_start;
+
 	// enter domain for local transformations
     mvstack.push(model_view);
 	
@@ -380,15 +438,15 @@ static void drawScene() {
 	model_view *= Scale(s, s, s);
 	
 	// rotate the entire scene by the global angle
-    model_view *= RotateZ(globalAngle);
+    //model_view *= RotateZ(globalAngle);
 	
 	// rotate each individual piece
 	for (int i = 0; i < NUM_OBJECTS; i++) {
 		mvstack.push( model_view ); // enter local transformation domain
 		model_view *= Translate(30, 0, 0); // move 30 away from center in (logical) x-direction
 		model_view *= Scale(20, 20, 20); // make it larger by a factor of 20
-		model_view *= RotateX(localAngles[i][0]); // rotate by current x-rotation angle
-		model_view *= RotateY(localAngles[i][1]); // rotate by current y-rotation angle
+		//model_view *= RotateX(localAngles[i][0]); // rotate by current x-rotation angle
+		//model_view *= RotateY(localAngles[i][1]); // rotate by current y-rotation angle
 		
 		// send the transformation matrix to the GPU
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
@@ -399,7 +457,7 @@ static void drawScene() {
 		model_view = mvstack.pop(); // undo transformations for the just-drawn object
 		
 		// rotate by 1/Nth of circle to go to position for next object
-		model_view *= RotateZ(360.0/NUM_OBJECTS);
+		//model_view *= RotateZ(360.0/NUM_OBJECTS);
 	}
 	
 	model_view = mvstack.pop(); // undo transformations for this entire draw
@@ -442,8 +500,11 @@ static void reshape(int width, int height) {
 	
 	// define the projection matrix, based on the computed dimensions;
 	// send the matrix to the GPU
-    mat4 projection = Ortho( left, right, bottom, top, zNear, zFar );
-    glUniformMatrix4fv( Projection, 1, GL_TRUE, projection );
+    //mat4 projection = Ortho( left, right, bottom, top, zNear, zFar );
+	mat4 projection = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
+	projection = Perspective(50, 1, 1.0, 20000);
+
+	glUniformMatrix4fv( Projection, 1, GL_TRUE, projection );
 	
 	// define the model-view matrix so that it initially does no transformations
     model_view = mat4( 1.0 );   // An Identity matrix
@@ -455,7 +516,7 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("monkey_lowpoly.obj", &Index, points, colors, normals,tex_coords);
+	objects[0] = genObject("door.obj", &Index, points, colors, normals,tex_coords);
 	//objects[1] = genObject("cube.obj", &Index, points, colors, normals, tex_coords);
 	//objects[2] = genShape2(&Index, points, colors);
 	//objects[3] = genShape3(&Index, points, colors);
@@ -477,8 +538,8 @@ static void init(void) {
 	static GLfloat pic[1024][1024][3];
 
 	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-
+	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	readPpmImage("test_door2.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(
 		GL_RGB, // as in GL_RGB
 		1024, // width of existing image, in pixels
@@ -544,7 +605,9 @@ static void init(void) {
 	
 
 	// Load shaders and use the resulting shader program
-	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
+	//GLuint program = InitShader("vshader.glsl", "fshader.glsl");
+	GLuint program = InitShader2(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+
 	glUseProgram(program);
 
 	// set up vertex arrays
@@ -566,7 +629,7 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
 	// Initialize shader lighting parameters
-	point4 light_position(1.0, 1.0, 1.0, 0.0);
+	point4 light_position(1.0, 1.0, -1.0, 0.0);
 	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
 	color4 light_diffuse(1.0, 1.0, 1.0, 1.0);
 	color4 light_specular(1.0, 1.0, 1.0, 1.0);
@@ -603,6 +666,11 @@ static void init(void) {
 
 	glClearColor(1.0, 1.0, 1.0, 1.0); /* white background */
 	glShadeModel(GL_SMOOTH);
+
+	// Starting position for the camera
+	model_view_start = Translate(0, 0, -100);
+	model_view_start *= RotateX(50);
+	//model_view_start *= RotateZ(10);
 }
 
 
@@ -611,10 +679,16 @@ static void init(void) {
 static void tick(int n) {
 	// set up next "tick"
 	glutTimerFunc(n, tick, n);
-	
-	// update our angles
-	updateAngles();
-	
+
+	// advance the clock
+	currentTime += TICK_INTERVAL / 1000.0;
+
+	// position based on speed
+	model_view_start = Translate(0, 0, currentSpeed)*model_view_start;
+
+	// draw the new scene
+	glutPostRedisplay();
+
 	// draw the new scene
 	drawScene();
 }
@@ -624,12 +698,40 @@ static void tick(int n) {
 // or upper- or lower-case 'Q' is pressed.
 static void keyboard( unsigned char key, int x, int y )
 {
-    switch( key ) {
-		case 033: // Escape Key
-		case 'q': case 'Q':
-			exit( EXIT_SUCCESS );
-			break;
-    }
+	int factor = (key <= 'Z') ? 6.0 : 1.0;
+	switch (key) {
+	case 033: // Escape Key
+	case 'q': case 'Q':
+		exit(EXIT_SUCCESS);
+		break;
+	case 'w': case 'W':
+		currentSpeed += 0.05*factor;
+		break;
+	case 's': case 'S':
+		currentSpeed -= 0.05*factor;
+		break;
+	case 'x': case 'X':
+		currentSpeed = 0.0;
+		break;
+	case 'a': case 'A':
+		model_view_start = RotateY(-5 * factor)*model_view;
+		break;
+	case 'd': case 'D':
+		model_view_start = RotateY(5 * factor)*model_view;
+		break;
+	case 'z': case 'Z':
+		model_view_start = RotateZ(-1.5*factor)*model_view;
+		break;
+	case 'c': case 'C':
+		model_view_start = RotateZ(1.5*factor)*model_view;
+		break;
+	case 'r': case 'R':
+		model_view_start = RotateX(-1.5*factor)*model_view;
+		break;
+	case 'v': case 'V':
+		model_view_start = RotateX(1.5*factor)*model_view;
+		break;
+	}
 }
 
 //----------------------------------------------------------------------------
