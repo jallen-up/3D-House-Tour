@@ -66,7 +66,7 @@ gl_Position = Projection*ModelView*vPosition; \
 }  \
 "
 #define FRAGMENT_SHADER_CODE "\
-attribute vec2 texCoord;\
+varying vec2 texCoord;\
 varying  vec4 color; \
 uniform sampler2D texture;\
 void main() \
