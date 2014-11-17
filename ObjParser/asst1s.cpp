@@ -333,7 +333,7 @@ static ObjRef genShape1(int *idxVar, point4 *pointsArray, color4 *colorArray) {
 	// save start index, as it will be part of our return value
 	int startIdx = *idxVar;
 	
-	// generate a red triangle
+	// generate a red triangled
 	genSkinnyTriangle(color4(1.0,0.0,0.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
 	
 	// return the object reference (first and last point)
@@ -516,7 +516,7 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("door.obj", &Index, points, colors, normals,tex_coords);
+	objects[0] = genObject("monkey_lowpoly.obj", &Index, points, colors, normals,tex_coords);
 	//objects[1] = genObject("cube.obj", &Index, points, colors, normals, tex_coords);
 	//objects[2] = genShape2(&Index, points, colors);
 	//objects[3] = genShape3(&Index, points, colors);
@@ -539,7 +539,7 @@ static void init(void) {
 
 	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	readPpmImage("test_door2.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(
 		GL_RGB, // as in GL_RGB
 		1024, // width of existing image, in pixels
@@ -714,24 +714,36 @@ static void keyboard( unsigned char key, int x, int y )
 		currentSpeed = 0.0;
 		break;
 	case 'a': case 'A':
-		model_view_start = RotateY(-5 * factor)*model_view;
+		model_view_start = Translate(1.0*factor, 0, 0)*model_view_start;
 		break;
 	case 'd': case 'D':
-		model_view_start = RotateY(5 * factor)*model_view;
-		break;
-	case 'z': case 'Z':
-		model_view_start = RotateZ(-1.5*factor)*model_view;
-		break;
-	case 'c': case 'C':
-		model_view_start = RotateZ(1.5*factor)*model_view;
+		model_view_start = Translate(-1.0*factor, 0, 0)*model_view_start;
 		break;
 	case 'r': case 'R':
-		model_view_start = RotateX(-1.5*factor)*model_view;
+		model_view_start = Translate(0, -1.0*factor, 0)*model_view_start;
 		break;
-	case 'v': case 'V':
-		model_view_start = RotateX(1.5*factor)*model_view;
+	case 'f': case 'F':
+		model_view_start = Translate(0, 1.0*factor, 0)*model_view_start;
 		break;
-	}
+	case 'j': case 'J':
+		model_view_start = RotateY(-0.5*factor)*model_view_start;
+		break;
+	case 'l': case 'L':
+		model_view_start = RotateY(0.5*factor)*model_view_start;
+		break;
+	case 'u': case 'U':
+		model_view_start = RotateZ(-1.5*factor)*model_view_start;
+		break;
+	case 'o': case 'O':
+		model_view_start = RotateZ(1.5*factor)*model_view_start;
+		break;
+	case 'i': case 'I':
+		model_view_start = RotateX(-1.5*factor)*model_view_start;
+		break;
+	case 'k': case 'K':
+		model_view_start = RotateX(1.5*factor)*model_view_start;
+		break;
+	}//NAV SWITCH
 }
 
 //----------------------------------------------------------------------------
