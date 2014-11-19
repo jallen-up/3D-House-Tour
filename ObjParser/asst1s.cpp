@@ -40,6 +40,7 @@ varying vec4 color; \
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
 uniform mat4 Projection; \
+uniform mat4 CollisionProjection;\
 uniform vec4 VariableColor; \
 uniform vec4 LightPosition;\
 uniform float Shininess;\
@@ -75,12 +76,6 @@ gl_FragColor = color*texture2D(texture,texCoord); \
 } \
 "
 
-// The current spinning angle of our five objects
-static GLfloat globalAngle = 0.0;
-
-// boolean that tells whether we are spinning (initially true)
-static int spinning = true;
-
 // define typedefs for readability
 typedef vec4 point4;
 typedef vec4 color4;
@@ -114,10 +109,10 @@ static double currentSpeed = 0.0;
 static MatrixStack  mvstack;
 
 // the model-view matrix, defining the current transformation
-static mat4         model_view, model_view_start;
+static mat4         model_view, model_view_start, copymv;
 
 // GPU IDs for the projection and model-view matrices
-static GLuint       ModelView, Projection;
+static GLuint       ModelView, Projection, CollisionView, CollisionProjection;
 
 //----------------------------------------------------------------------------
 // the number of vertices we've loaded so far into the points and colors arrays
@@ -283,107 +278,6 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 }//GenObject
 
 
-
-
-//----------------------------------------------------------------------------
-// creates a skinny triangle
-//  - this function is for demo purposes
-static ObjRef genSkinnyTriangle(color4 theColor, GLfloat zVal, int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// add the first vertex to the array(s)
-	pointsArray[*idxVar] = point4(-0.1, -0.5, zVal, 1.0);
-	colorArray[*idxVar] = theColor;
-	(*idxVar)++;
-	
-	// add second vertex
-	pointsArray[*idxVar] = point4(0.1, -0.5, zVal, 1.0);
-	colorArray[*idxVar] = theColor;
-	(*idxVar)++;
-	
-	// add third vertex
-	pointsArray[*idxVar] = point4(0.0, 0.5, zVal, 1.0);
-	colorArray[*idxVar] = theColor;
-	(*idxVar)++;
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-}
-
-//----------------------------------------------------------------------------
-// This function should generate an equlateral triangle, centered approximately at (0,0,0)
-static ObjRef genShape0(int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// generate a white triangle
-	genSkinnyTriangle(color4(1.0,1.0,1.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-}
-
-// This function should generate a polygon of at least 5 sides, and at most 20 sides,
-// centered approximately at (0,0,0).
-static ObjRef genShape1(int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// generate a red triangled
-	genSkinnyTriangle(color4(1.0,0.0,0.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-	
-}
-
-// This function should generate a 1x1x1 cube, centered at (0,0,0).
-static ObjRef genShape2(int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// generate a medium green triangle
-	genSkinnyTriangle(color4(0.0,0.75,0.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-}
-
-// This function should generate a tetrahedron or a pyramid, centered approximately
-// at (0,0,0).
-static ObjRef genShape3(int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// generate a blue triangle
-	genSkinnyTriangle(color4(0.0,0.0,1.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-	
-}
-
-// This function can be left as a right triangle, or it can generate a polyhedra with more than
-// six sides.
-static ObjRef genShape4(int *idxVar, point4 *pointsArray, color4 *colorArray) {
-	
-	// save start index, as it will be part of our return value
-	int startIdx = *idxVar;
-	
-	// generate a yellow triangle
-	genSkinnyTriangle(color4(1.0,1.0,0.0,1.0), 0.0, idxVar, pointsArray, colorArray);	
-	
-	// return the object reference (first and last point)
-	return ObjRef(startIdx, *idxVar);
-	
-}
-
 //----------------------------------------------------------------------------
 // a helper-function that returns a random number in the range [0.0,1.0)
 static GLfloat randUniform() {
@@ -406,22 +300,6 @@ static GLfloat localAngles[NUM_OBJECTS][2] = {
 };
 
 //----------------------------------------------------------------------------
-// Updates both the global rotation of the objects around the center (globalAngle),
-// but only if 'spinning' is true.
-static void updateAngles() {
-	if (spinning) { // only apply transforms if we're spinning
-		// modify each local angle entry by a small, relatively uniform amount
-		for (int i = 0; i < sizeof localAngles/sizeof *localAngles; i++) {
-			localAngles[i][0] += 5.0+randUniform();
-			localAngles[i][1] += 3.0+randUniform();
-		}
-		
-		// modify the global angle by two degrees
-		globalAngle += 2.0;
-	}
-}
-
-//----------------------------------------------------------------------------
 // draws our scene
 //   CS 432 students should NOT modlfy this function
 static void drawScene() {
@@ -436,17 +314,12 @@ static void drawScene() {
 	float s = 2.2;
 	// scale the scene so that it fits nicely in the window
 	model_view *= Scale(s, s, s);
-	
-	// rotate the entire scene by the global angle
-    //model_view *= RotateZ(globalAngle);
-	
+		
 	// rotate each individual piece
 	for (int i = 0; i < NUM_OBJECTS; i++) {
 		mvstack.push( model_view ); // enter local transformation domain
-		model_view *= Translate(30, 0, 0); // move 30 away from center in (logical) x-direction
+		//model_view *= Translate(30, 0, 0); // move 30 away from center in (logical) x-direction
 		model_view *= Scale(20, 20, 20); // make it larger by a factor of 20
-		//model_view *= RotateX(localAngles[i][0]); // rotate by current x-rotation angle
-		//model_view *= RotateY(localAngles[i][1]); // rotate by current y-rotation angle
 		
 		// send the transformation matrix to the GPU
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
@@ -456,22 +329,52 @@ static void drawScene() {
 		
 		model_view = mvstack.pop(); // undo transformations for the just-drawn object
 		
-		// rotate by 1/Nth of circle to go to position for next object
-		//model_view *= RotateZ(360.0/NUM_OBJECTS);
 	}
 	
 	model_view = mvstack.pop(); // undo transformations for this entire draw
+}
+
+//----------------------------------------------------------------------------
+// Draws the scene in ortho view and writes to the frame buffer.   The frame 
+// Buffer is then read to look for a color other than megenta,  If it finds a color
+// other than the background color(magenta), it returns true, there has been a collision. 
+//  
+static bool detectCollisions() {
+
+	glClearColor(1.0, 0.0, 1.0, 1.0);
+
+	GLfloat left = -50.0, right = 50.0;
+	GLfloat bottom = -100.0, top = 100.0;
+	GLfloat zNear = -100.0, zFar = 100.0;
+
+	mat4 collision = Ortho(left, right, bottom, top, zNear, zFar);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
+
+	//draw the scene in ortho
+	drawScene();
 	
-	// swap buffers so that just-drawn image is displayed
-	glutSwapBuffers();
+	unsigned int data;
+	glReadPixels(1, 1, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+	data &= 0xffffff;
+
+	mat4 projection1 = Frustum(left*2, right*2, bottom, top, 1.0, zNear + zFar);
+	projection1 = Perspective(50, 1, 1.0, 20000);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
+
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	//if we hit something, return true
+	if (data != 0xff00ff){
+		return true;
+	}
+	//if we dont hit anything, return false
+	return false;
 }
 
 //----------------------------------------------------------------------------
 // callback function: handles a mouse-press
 static void mouse(int btn, int state, int x, int y) {
 	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		// toggle the "spinning" boolean if the left mouse is down
-		spinning = !spinning;
+	
 	}
 }
 
@@ -500,12 +403,12 @@ static void reshape(int width, int height) {
 	
 	// define the projection matrix, based on the computed dimensions;
 	// send the matrix to the GPU
-    //mat4 projection = Ortho( left, right, bottom, top, zNear, zFar );
+    mat4 collision = Ortho( left, right, bottom, top, zNear, zFar );
 	mat4 projection = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
 	projection = Perspective(50, 1, 1.0, 20000);
 
-	glUniformMatrix4fv( Projection, 1, GL_TRUE, projection );
-	
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection);
+	glUniformMatrix4fv( CollisionProjection, 1, GL_TRUE, collision );
 	// define the model-view matrix so that it initially does no transformations
     model_view = mat4( 1.0 );   // An Identity matrix
 }
@@ -516,7 +419,7 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("monkey_lowpoly.obj", &Index, points, colors, normals,tex_coords);
+	objects[0] = genObject("testroom.obj", &Index, points, colors, normals,tex_coords);
 	//objects[1] = genObject("cube.obj", &Index, points, colors, normals, tex_coords);
 	//objects[2] = genShape2(&Index, points, colors);
 	//objects[3] = genShape3(&Index, points, colors);
@@ -659,6 +562,9 @@ static void init(void) {
 	// Retrieve transformation uniform variable locations
 	ModelView = glGetUniformLocation(program, "ModelView");
 	Projection = glGetUniformLocation(program, "Projection");
+	CollisionView = glGetUniformLocation(program, "CollisionView");
+	CollisionProjection = glGetUniformLocation(program, "CollisionProjection");
+	
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -668,8 +574,10 @@ static void init(void) {
 	glShadeModel(GL_SMOOTH);
 
 	// Starting position for the camera
-	model_view_start = Translate(0, 0, -100);
-	model_view_start *= RotateX(50);
+	
+	model_view_start = Translate(0, -200, -1000);
+	model_view_start *= RotateY(-90);
+	//model_view_start *= RotateX(50);
 	//model_view_start *= RotateZ(10);
 }
 
@@ -684,20 +592,25 @@ static void tick(int n) {
 	currentTime += TICK_INTERVAL / 1000.0;
 
 	// position based on speed
-	model_view_start = Translate(0, 0, currentSpeed)*model_view_start;
+	//model_view_start = Translate(0, 0, currentSpeed)*model_view_start;
 
 	// draw the new scene
 	glutPostRedisplay();
 
 	// draw the new scene
 	drawScene();
+
+	//swap the buffers
+	glutSwapBuffers();
 }
 
+int toggler = 0;
 //----------------------------------------------------------------------------
 // callback function, responding to a key-press. Program will terminate if the escape key
 // or upper- or lower-case 'Q' is pressed.
 static void keyboard( unsigned char key, int x, int y )
 {
+	
 	int factor = (key <= 'Z') ? 6.0 : 1.0;
 	switch (key) {
 	case 033: // Escape Key
@@ -705,10 +618,20 @@ static void keyboard( unsigned char key, int x, int y )
 		exit(EXIT_SUCCESS);
 		break;
 	case 'w': case 'W':
-		currentSpeed += 0.05*factor;
+		copymv = model_view_start;
+		model_view_start = Translate(0, 0, 6.0*factor)*model_view_start;
+
+		if (detectCollisions()){
+			model_view_start = copymv;
+		}
 		break;
 	case 's': case 'S':
-		currentSpeed -= 0.05*factor;
+		copymv = model_view_start;
+		model_view_start = Translate(0, 0, -6.0*factor)*model_view_start;
+
+		if (detectCollisions()){
+			model_view_start = copymv;
+		}
 		break;
 	case 'x': case 'X':
 		currentSpeed = 0.0;
@@ -743,6 +666,27 @@ static void keyboard( unsigned char key, int x, int y )
 	case 'k': case 'K':
 		model_view_start = RotateX(1.5*factor)*model_view_start;
 		break;
+	case 'b':
+		
+		/*GLfloat left = -100.0, right = 100.0;
+		GLfloat bottom = -100.0, top = 100.0;
+		GLfloat zNear = -100.0, zFar = 100.0;
+		
+		mat4 projection = Ortho(left, right, bottom, top, zNear, zFar);
+		
+		
+		glUniformMatrix4fv(Projection, 1, GL_TRUE, projection);*/
+		break;
+	case 'g':
+		/*GLfloat left1 = -100.0, right1 = 100.0;
+		GLfloat bottom1 = -100.0, top1 = 100.0;
+		GLfloat zNear1 = -100.0, zFar1 = 100.0;
+
+		mat4 projection1 = Frustum(left1, right1, bottom1, top1, 1.0, zNear1 + zFar1);
+		projection1 = Perspective(50, 1, 1.0, 20000);
+		glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);*/
+		break;
+
 	}//NAV SWITCH
 }
 
@@ -756,7 +700,7 @@ int main( int argc, char **argv ) {
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
 	glutCreateWindow("CS 432, Assignment 1");
-	
+	///glutFullScreen();
 	glewInit();
 
 	// call the initializer function
