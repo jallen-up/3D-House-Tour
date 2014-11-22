@@ -101,8 +101,6 @@ vec2    tex_coords[NumVertices];
 // the amount of time in seconds since the the program started
 GLfloat currentTime = 0.0;
 
-// the current forward speed
-static double currentSpeed = 0.0;
 
 //----------------------------------------------------------------------------
 // our matrix stack
@@ -289,17 +287,6 @@ static GLfloat randUniform() {
 static ObjRef objects[NUM_OBJECTS];
 
 //----------------------------------------------------------------------------
-// The current orientation of each of our objects.  The first element of each pair
-// specifies an x-axis rotation; the second specifies a y-axis rotation
-static GLfloat localAngles[NUM_OBJECTS][2] = {
-{23.0, 45.0},
-{34.0, 91.0},
-{264.0, 7.0},
-{67.0, 334.0},
-{179.0, 146.0},
-};
-
-//----------------------------------------------------------------------------
 // draws our scene
 //   CS 432 students should NOT modlfy this function
 static void drawScene() {
@@ -343,31 +330,60 @@ static bool detectCollisions() {
 
 	glClearColor(1.0, 0.0, 1.0, 1.0);
 
-	GLfloat left = -50.0, right = 50.0;
+	GLfloat left = -100.0, right = 100.0;
 	GLfloat bottom = -100.0, top = 100.0;
 	GLfloat zNear = -100.0, zFar = 100.0;
+
+	GLfloat aspect = GLfloat(glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT));
+
+	if (aspect > 1.0) {
+		left *= aspect;
+		right *= aspect;
+	}
+	else {
+		bottom /= aspect;
+		top /= aspect;
+	}
 
 	mat4 collision = Ortho(left, right, bottom, top, zNear, zFar);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
 
 	//draw the scene in ortho
 	drawScene();
-	
-	unsigned int data;
-	glReadPixels(1, 1, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
-	data &= 0xffffff;
+	int collisionWidth = glutGet(GLUT_WINDOW_WIDTH) / 20;
+	int collisionHeight = glutGet(GLUT_WINDOW_HEIGHT) / 20;
+	int centerPixelX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	int centerPixelY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+	bool foundObject = false;
+	int i,j;
 
-	mat4 projection1 = Frustum(left*2, right*2, bottom, top, 1.0, zNear + zFar);
+	for (i = 0; i < collisionWidth; i++){
+		for (j = 0; j < collisionHeight; j++){
+			unsigned int data;
+			glReadPixels(centerPixelX - (collisionWidth / 2) + i, centerPixelY - (collisionHeight / 2) + j , 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+			data &= 0xffffff;
+			//if we hit something, return true
+			if (data != 0xff00ff){
+				foundObject = true;
+			}
+			
+		}
+	}
+	
+
+	mat4 projection1 = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
 	projection1 = Perspective(50, 1, 1.0, 20000);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-	//if we hit something, return true
-	if (data != 0xff00ff){
+	
+	//if we hit something return true
+	if (foundObject){
 		return true;
 	}
-	//if we dont hit anything, return false
-	return false;
+	else{
+		return false;
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -419,30 +435,15 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("testroom.obj", &Index, points, colors, normals,tex_coords);
-	//objects[1] = genObject("cube.obj", &Index, points, colors, normals, tex_coords);
-	//objects[2] = genShape2(&Index, points, colors);
-	//objects[3] = genShape3(&Index, points, colors);
-	//objects[4] = genShape4(&Index, points, colors);
+	objects[0] = genObject("house4.obj", &Index, points, colors, normals,tex_coords);
 
-	 //Create a checkerboard pattern
-	/*for (int i = 0; i < TextureSize; i++) {
-		for (int j = 0; j < TextureSize; j++) {
-			GLubyte c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0)) * 255;
-			image[i][j][0] = c;
-			image[i][j][1] = c;
-			image[i][j][2] = c;
-			image2[i][j][0] = c;
-			image2[i][j][1] = 0;
-			image2[i][j][2] = c;
-		}
-	}*/
 
 	static GLfloat pic[1024][1024][3];
 
-	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	//Read .ppm texture image
 	readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+
+	//scale.ppm image
 	gluScaleImage(
 		GL_RGB, // as in GL_RGB
 		1024, // width of existing image, in pixels
@@ -465,7 +466,6 @@ static void init(void) {
 		GL_BYTE, // type of new image, as in GL_FLOAT
 		image2); // pointer to buffer for holding new image
 
-	//readPpmImage("monkey_lowpoly_ascii.ppm", (GLubyte*)image2, 0, 0, 2048, 2048);
 	// Initialize texture objects
 	glGenTextures(2, textures);
 
@@ -573,12 +573,10 @@ static void init(void) {
 	glClearColor(1.0, 1.0, 1.0, 1.0); /* white background */
 	glShadeModel(GL_SMOOTH);
 
-	// Starting position for the camera
-	
+	// Starting position for the camera	
 	model_view_start = Translate(0, -200, -1000);
 	model_view_start *= RotateY(-90);
-	//model_view_start *= RotateX(50);
-	//model_view_start *= RotateZ(10);
+
 }
 
 
@@ -591,9 +589,6 @@ static void tick(int n) {
 	// advance the clock
 	currentTime += TICK_INTERVAL / 1000.0;
 
-	// position based on speed
-	//model_view_start = Translate(0, 0, currentSpeed)*model_view_start;
-
 	// draw the new scene
 	glutPostRedisplay();
 
@@ -604,7 +599,6 @@ static void tick(int n) {
 	glutSwapBuffers();
 }
 
-int toggler = 0;
 //----------------------------------------------------------------------------
 // callback function, responding to a key-press. Program will terminate if the escape key
 // or upper- or lower-case 'Q' is pressed.
@@ -620,33 +614,56 @@ static void keyboard( unsigned char key, int x, int y )
 	case 'w': case 'W':
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, 6.0*factor)*model_view_start;
-
-		if (detectCollisions()){
-			model_view_start = copymv;
-		}
+		if (detectCollisions()) model_view_start = copymv;
 		break;
 	case 's': case 'S':
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, -6.0*factor)*model_view_start;
-
-		if (detectCollisions()){
-			model_view_start = copymv;
-		}
-		break;
-	case 'x': case 'X':
-		currentSpeed = 0.0;
+		if (detectCollisions()) model_view_start = copymv;
 		break;
 	case 'a': case 'A':
-		model_view_start = Translate(1.0*factor, 0, 0)*model_view_start;
+		copymv = model_view_start;
+		model_view_start = Translate(6.0*factor, 0, 0)*model_view_start;
+		model_view_start = RotateY(-90)*model_view_start;
+		if (detectCollisions()) {
+			model_view_start = copymv;
+		}
+		else{
+			model_view_start = RotateY(90)*model_view_start;
+		}
 		break;
 	case 'd': case 'D':
-		model_view_start = Translate(-1.0*factor, 0, 0)*model_view_start;
+		copymv = model_view_start;
+		model_view_start = Translate(-6.0*factor, 0, 0)*model_view_start;
+		model_view_start = RotateY(90)*model_view_start;
+		if (detectCollisions()) {
+			model_view_start = copymv;
+		}
+		else{
+			model_view_start = RotateY(-90)*model_view_start;
+		}
 		break;
 	case 'r': case 'R':
-		model_view_start = Translate(0, -1.0*factor, 0)*model_view_start;
+		copymv = model_view_start;
+		model_view_start = Translate(0, -6.0*factor, 0)*model_view_start;
+		model_view_start = RotateX(-90)*model_view_start;
+		if (detectCollisions()) {
+			model_view_start = copymv;
+		}
+		else{
+			model_view_start = RotateX(90)*model_view_start;
+		}
 		break;
 	case 'f': case 'F':
-		model_view_start = Translate(0, 1.0*factor, 0)*model_view_start;
+		copymv = model_view_start;
+		model_view_start = Translate(0, 6.0*factor, 0)*model_view_start;
+		model_view_start = RotateX(90)*model_view_start;
+		if (detectCollisions()) {
+			model_view_start = copymv;
+		}
+		else{
+			model_view_start = RotateX(-90)*model_view_start;
+		}
 		break;
 	case 'j': case 'J':
 		model_view_start = RotateY(-0.5*factor)*model_view_start;
@@ -666,26 +683,6 @@ static void keyboard( unsigned char key, int x, int y )
 	case 'k': case 'K':
 		model_view_start = RotateX(1.5*factor)*model_view_start;
 		break;
-	case 'b':
-		
-		/*GLfloat left = -100.0, right = 100.0;
-		GLfloat bottom = -100.0, top = 100.0;
-		GLfloat zNear = -100.0, zFar = 100.0;
-		
-		mat4 projection = Ortho(left, right, bottom, top, zNear, zFar);
-		
-		
-		glUniformMatrix4fv(Projection, 1, GL_TRUE, projection);*/
-		break;
-	case 'g':
-		/*GLfloat left1 = -100.0, right1 = 100.0;
-		GLfloat bottom1 = -100.0, top1 = 100.0;
-		GLfloat zNear1 = -100.0, zFar1 = 100.0;
-
-		mat4 projection1 = Frustum(left1, right1, bottom1, top1, 1.0, zNear1 + zFar1);
-		projection1 = Perspective(50, 1, 1.0, 20000);
-		glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);*/
-		break;
 
 	}//NAV SWITCH
 }
@@ -700,7 +697,7 @@ int main( int argc, char **argv ) {
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
 	glutCreateWindow("CS 432, Assignment 1");
-	///glutFullScreen();
+	glutFullScreen();
 	glewInit();
 
 	// call the initializer function
