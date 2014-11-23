@@ -28,7 +28,7 @@ using namespace std;
 // The number of distance units that are in our viewport
 #define VIEWSIZE 120
 
-#define NUM_OBJECTS 5
+#define NUM_OBJECTS 20
 
 // define our shader code
 #define VERTEX_SHADER_CODE "\
@@ -118,10 +118,24 @@ static vec3 normals[NumVertices];
 
 const int  TextureSize = 1024;
 const int trick = 128;
-GLuint textures[2];
+GLuint textures[13];
 
 GLubyte image[TextureSize][TextureSize][3];
+GLubyte image1[TextureSize][TextureSize][3];
 GLubyte image2[TextureSize][TextureSize][3];
+GLubyte image3[TextureSize][TextureSize][3];
+GLubyte image4[TextureSize][TextureSize][3];
+GLubyte image5[TextureSize][TextureSize][3];
+GLubyte image6[TextureSize][TextureSize][3];
+GLubyte image7[TextureSize][TextureSize][3];
+GLubyte image8[TextureSize][TextureSize][3];
+GLubyte image9[TextureSize][TextureSize][3];
+GLubyte image10[TextureSize][TextureSize][3];
+GLubyte image11[TextureSize][TextureSize][3];
+GLubyte image12[TextureSize][TextureSize][3];
+GLubyte image13[TextureSize][TextureSize][3];
+
+GLubyte houseImage[4096][4096][3];
 
 vec2    tex_coords[NumVertices];
 
@@ -142,6 +156,10 @@ static int OFF= 0;
 static int ON = 1;
 static const int numLights = 7;
 int lightStates[numLights];
+
+// TV variable
+static bool tv1IsOn = false;
+static bool tv2IsOn = false;
 
 //----------------------------------------------------------------------------
 // our matrix stack
@@ -164,6 +182,8 @@ static void activateCallback(int code) {
 	if ((code != 0) && (doorStates[code - 1] == CLOSED)){
 		doorStates[code - 1] = CTO;
 	}
+	if (code == 20) tv1IsOn = true;
+	if (code == 21) tv2IsOn = true;
 }
 
 static void deactivateCallback(int code){
@@ -171,6 +191,8 @@ static void deactivateCallback(int code){
 	if ((code != 0) && (doorStates[code - 1] == OPEN)){
 		doorStates[code - 1] = OTC;
 	}
+	if (code == 20) tv1IsOn = false;
+	if (code == 21) tv2IsOn = false;
 }
 
 
@@ -232,7 +254,6 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			val = (float)atof(second.c_str());
 			tempt.y = val;
 
-			cout << tempt.x << " " << tempt.y << endl;
 			texList.push_back(tempt);
 		}
 		//PARSE NORMALS
@@ -269,7 +290,7 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			string secondel = jjj.substr(0, jjj.find(' '));
 			string thirdel = thisLine.substr(thisLine.find_last_of(' '));
 
-			//cout << firstel << " " << secondel << " " << thirdel << endl;
+	
 			string firstv = firstel.substr(0, firstel.find('/'));
 			val = (int)atof(firstv.c_str());
 			pointsArray[*idxVar] = vertList.at(val - 1);
@@ -277,15 +298,15 @@ ObjRef genObject(string path, int* idxVar, point4* pointsArray, color4* colorsAr
 			string temp = firstel.substr(firstv.length()+1);
 			string firstt = temp.substr(0, temp.find('/'));
 			
-			//std::cout << firstt << endl;
+			
 			val = (int)atof(firstt.c_str());
 			texArray[*idxVar] = texList.at(val - 1);
-			//std::cout << texList.at(val - 1).x << " " << texList.at(val - 1).y << endl;
+			
 
 			string firstn = firstel.substr(firstel.find_last_of('/')+1);
 			val = (int)atof(firstn.c_str());
 			vec4 test = normList.at(val - 1);
-			//cout << test;
+		
 			normalArray[*idxVar] = normList.at(val - 1);
 		
 			colorsArray[*idxVar] = color4(1.0, 0.0, 0.0, 1.0);
@@ -386,15 +407,15 @@ static void drawScene() {
 			break;
 		case 5:
 			model_view *= RotateY(90);
-			model_view *= Translate(50, 0, 0);
+			model_view *= Translate(14, 7, -5);
 			break;
 		case 6:
 			model_view *= RotateY(90);
-			model_view *= Translate(50, 0, 0);
+			model_view *= Translate(10.5, 7, 10);
 			break;
 		case 7:
 			model_view *= RotateY(90);
-			model_view *= Translate(50, 0, 0);
+			model_view *= Translate(-2, 7, 10);
 			break;
 		}
 
@@ -427,25 +448,289 @@ static void drawScene() {
 
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(i + 1);
-		// draw the (transformed) object
+		glBindTexture(GL_TEXTURE_2D, textures[1]);
+		// draw the (transformed) door objects
 		glDrawArrays(GL_TRIANGLES, objects[0].getStartIdx(), objects[0].getCount());
 		clearPickId();
 
 		model_view = mvstack.pop();
 	}
 
-	for (int i = 1; i < NUM_OBJECTS; i++) {
-		mvstack.push( model_view ); // enter local transformation domain
-		
-		// send the transformation matrix to the GPU
+		//House
+		mvstack.push( model_view ); 
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
-		setPickId(i + 1 + numDoors);
-		// draw the (transformed) object
-		glDrawArrays(GL_TRIANGLES, objects[i].getStartIdx(), objects[i].getCount());
+		setPickId(1 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[0]);
+		glDrawArrays(GL_TRIANGLES, objects[1].getStartIdx(), objects[1].getCount());
 		clearPickId();
-		model_view = mvstack.pop(); // undo transformations for the just-drawn object
-		
-	}
+		model_view = mvstack.pop(); 
+
+		//Couch
+		mvstack.push(model_view);
+		model_view *= Translate(18, 1, -2);
+		model_view *= RotateY(90);
+		model_view *= Scale(1.3, 1.3, 1.3);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(2 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[2]);
+		glDrawArrays(GL_TRIANGLES, objects[2].getStartIdx(), objects[2].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//bookshelf
+		mvstack.push(model_view);
+		model_view *= Translate(11.5, 1, -14);
+		model_view *= RotateY(180);
+		model_view *= Scale(1.3, 1.3, 1.3);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(3 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[3]);
+		glDrawArrays(GL_TRIANGLES, objects[3].getStartIdx(), objects[3].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//end_table
+		mvstack.push(model_view);
+		model_view *= Translate(18, 0, 8);
+		model_view *= RotateY(45);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(4 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		glDrawArrays(GL_TRIANGLES, objects[4].getStartIdx(), objects[4].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//Living room lamp
+		mvstack.push(model_view);
+		model_view *= Translate(18, 1, -12);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(5 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//Dining room lamp
+		mvstack.push(model_view);
+		model_view *= Translate(-18, 1, -12);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(6 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//Master Bedroom lamp
+		mvstack.push(model_view);
+		model_view *= Translate(-18, 7, -12);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(7 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//bathroom lamp
+		mvstack.push(model_view);
+		model_view *= Translate(18, 7, -12);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(8 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//Medium bedroom lamp
+		mvstack.push(model_view);
+		model_view *= Translate(18, 7, 8);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(9 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//Foyer lamp
+		mvstack.push(model_view);
+		model_view *= Translate(9, 7, -2);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(9 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//bed
+		mvstack.push(model_view);
+		model_view *= Translate(15, 7, 0);
+		model_view *= Scale(1.2, 1, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(10 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[5]);
+		glDrawArrays(GL_TRIANGLES, objects[6].getStartIdx(), objects[6].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//bed
+		mvstack.push(model_view);
+		model_view *= Translate(-11.5, 7, 9);
+		model_view *= RotateY(180);
+		model_view *= Scale(2, 1, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(11 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[5]);
+		glDrawArrays(GL_TRIANGLES, objects[6].getStartIdx(), objects[6].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//tv1
+		mvstack.push(model_view);
+		model_view *= Translate(6, 2, -2);
+		model_view *= RotateY(90);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(12 + numDoors);
+		if (tv1IsOn){
+			glBindTexture(GL_TEXTURE_2D, textures[7]);
+		}
+		else{
+			glBindTexture(GL_TEXTURE_2D, textures[6]);
+		}
+		glDrawArrays(GL_TRIANGLES, objects[7].getStartIdx(), objects[7].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//tv2
+		mvstack.push(model_view);
+		model_view *= Translate(-6, 8, -2);
+		model_view *= RotateY(-90);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(13 + numDoors);
+		if (tv2IsOn){
+			glBindTexture(GL_TEXTURE_2D, textures[7]);
+		}
+		else{
+			glBindTexture(GL_TEXTURE_2D, textures[6]);
+		}
+		glDrawArrays(GL_TRIANGLES, objects[7].getStartIdx(), objects[7].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//left tree
+		mvstack.push(model_view);
+		model_view *= Translate(-6, 0, 15);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(14 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[8]);
+		glDrawArrays(GL_TRIANGLES, objects[8].getStartIdx(), objects[8].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//right tree
+		mvstack.push(model_view);
+		model_view *= Translate(6, 0, 15);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(15 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[8]);
+		glDrawArrays(GL_TRIANGLES, objects[8].getStartIdx(), objects[8].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//bathtub
+		mvstack.push(model_view);
+		model_view *= Translate(18, 7, -3);
+		model_view *= RotateY(90);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(16 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[9]);
+		glDrawArrays(GL_TRIANGLES, objects[9].getStartIdx(), objects[9].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//table
+		mvstack.push(model_view);
+		model_view *= Translate(-15, 1, 2);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(17 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[10]);
+		glDrawArrays(GL_TRIANGLES, objects[10].getStartIdx(), objects[10].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//chair1
+		mvstack.push(model_view);
+		model_view *= Translate(-15, 1, -0.5);
+		model_view *= Scale(0.8, 0.8, 0.8);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(18 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//chair2
+		mvstack.push(model_view);
+		model_view *= Translate(-15, 1, 4.5);
+		model_view *= RotateY(180);
+		model_view *= Scale(0.8, 0.8, 0.8);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(19 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//chair2
+		mvstack.push(model_view);
+		model_view *= Translate(-14, 1, 2.25);
+		model_view *= RotateY(-90);
+		model_view *= Scale(0.8, 0.8, 0.8);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(20 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//chair4
+		mvstack.push(model_view);
+		model_view *= Translate(-16, 1, 2.25);
+		model_view *= RotateY(90);
+		model_view *= Scale(0.8, 0.8, 0.8);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(21 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//toilet
+		mvstack.push(model_view);
+		model_view *= Translate(12, 7, -12);
+		model_view *= RotateY(90);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(22 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[11]);
+		glDrawArrays(GL_TRIANGLES, objects[12].getStartIdx(), objects[12].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
+
+		//fridge
+		mvstack.push(model_view);
+		model_view *= Translate(-6, 1, -8);
+		model_view *= RotateY(-90);
+		model_view *= Scale(1, 0.8, 1);
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(23 + numDoors);
+		glBindTexture(GL_TEXTURE_2D, textures[12]);
+		glDrawArrays(GL_TRIANGLES, objects[13].getStartIdx(), objects[13].getCount());
+		clearPickId();
+		model_view = mvstack.pop();
 	
 	model_view = mvstack.pop(); // undo transformations for this entire draw
 }
@@ -575,57 +860,169 @@ static void init(void) {
 	objects[1] = genObject("house.obj", &Index, points, colors, normals, tex_coords);
 	objects[2] = genObject("couch.obj", &Index, points, colors, normals, tex_coords);
 	objects[3] = genObject("bookshelf.obj", &Index, points, colors, normals, tex_coords);
-	
+	objects[4] = genObject("end_table.obj", &Index, points, colors, normals, tex_coords);
+	objects[5] = genObject("lamp.obj", &Index, points, colors, normals, tex_coords);
+	objects[6] = genObject("bed.obj", &Index, points, colors, normals, tex_coords);
+	objects[7] = genObject("tv.obj", &Index, points, colors, normals, tex_coords);
+	objects[8] = genObject("tree.obj", &Index, points, colors, normals, tex_coords);
+	objects[9] = genObject("bathtub.obj", &Index, points, colors, normals, tex_coords);
+	objects[10] = genObject("table.obj", &Index, points, colors, normals, tex_coords);
+	objects[11] = genObject("chair.obj", &Index, points, colors, normals, tex_coords);
+	objects[12] = genObject("toilet.obj", &Index, points, colors, normals, tex_coords);
+	objects[13] = genObject("fridge.obj", &Index, points, colors, normals, tex_coords);
 
 	static GLfloat pic[1024][1024][3];
+	static GLfloat pic2[4096][4096][3];
 
 	//Read .ppm texture image
-	readPpmImage("monkey_lowpoly_ascii.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
+	readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
+	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);
+	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
+	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image2);
+	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image3);
+	readPpmImage("bed.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image4);
+	readPpmImage("tv.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image5);
+	readPpmImage("tv_on.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image6);
+	readPpmImage("tree.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image7);
+	readPpmImage("bathtub.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image8);
+	readPpmImage("table.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image9);
+	//readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	//gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);
+	readPpmImage("toilet.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image11);
+	readPpmImage("fridge.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image12);
+	readPpmImage("lamp.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image13);
 
-	//scale.ppm image
-	gluScaleImage(
-		GL_RGB, // as in GL_RGB
-		1024, // width of existing image, in pixels
-		1024, // height of existing image, in pixels
-		GL_FLOAT, // type of data in existing image, as in GL_FLOAT
-		pic, // pointer to first element of existing image
-		1024, // width of new image
-		1024, // height of new image
-		GL_BYTE, // type of new image, as in GL_FLOAT
-		image); // pointer to buffer for holding new image
-
-	gluScaleImage(
-		GL_RGB, // as in GL_RGB
-		1024, // width of existing image, in pixels
-		1024, // height of existing image, in pixels
-		GL_FLOAT, // type of data in existing image, as in GL_FLOAT
-		pic, // pointer to first element of existing image
-		1024, // width of new image
-		1024, // height of new image
-		GL_BYTE, // type of new image, as in GL_FLOAT
-		image2); // pointer to buffer for holding new image
 
 	// Initialize texture objects
-	glGenTextures(2, textures);
-
+	glGenTextures(13, textures);
+	
+	//house
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4096, 4096, 0, GL_RGB, GL_UNSIGNED_BYTE, houseImage);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//door
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+	//couch
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	//bookshelf
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+	//endtable
+	glBindTexture(GL_TEXTURE_2D, textures[4]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//bed
+	glBindTexture(GL_TEXTURE_2D, textures[5]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image4);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//tv
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image5);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+
+	//tvon
+	glBindTexture(GL_TEXTURE_2D, textures[7]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image6);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//tree
+	glBindTexture(GL_TEXTURE_2D, textures[8]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image7);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//bathtub
+	glBindTexture(GL_TEXTURE_2D, textures[9]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image8);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//table
+	glBindTexture(GL_TEXTURE_2D, textures[10]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image9);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//toilet
+	glBindTexture(GL_TEXTURE_2D, textures[11]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image11);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//fridge
+	glBindTexture(GL_TEXTURE_2D, textures[12]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image12);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//lamp
+	glBindTexture(GL_TEXTURE_2D, textures[13]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image13);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
 
 	// Create a vertex array object
 	GLuint vao;
