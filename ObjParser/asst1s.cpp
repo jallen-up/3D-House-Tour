@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <ctime>
 #include <vector>
+#include "picking.h"
 using namespace std;
 
 // The initial size and position of our window
@@ -37,16 +38,23 @@ attribute vec2 vTexCoord;\
 attribute vec4 vColor;\
 varying vec2 texCoord;\
 varying vec4 color; \
+varying vec4 initPick; \
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
 uniform mat4 Projection; \
 uniform mat4 CollisionProjection;\
 uniform vec4 VariableColor; \
 uniform vec4 LightPosition;\
+uniform vec4 PickColor;\
 uniform float Shininess;\
 \
 void main() \
 { \
+initPick = PickColor;\
+if (PickColor.a >= 0.0) { \
+color = PickColor; \
+}\
+else {  \
 texCoord = vTexCoord;\
 vec3 pos = (ModelView * vPosition).xyz;\
 vec3 L = normalize(LightPosition.xyz - pos);\
@@ -62,17 +70,23 @@ if (dot(L, N) < 0.0) {\
 specular = vec4(0.0, 0.0, 0.0, 1.0);\
 }\
 color = ambient + diffuse + specular;\
-color.a = 1.0;\
+}\
 gl_Position = Projection*ModelView*vPosition; \
 }  \
 "
 #define FRAGMENT_SHADER_CODE "\
 varying vec2 texCoord;\
 varying  vec4 color; \
+varying vec4 initPick; \
 uniform sampler2D texture;\
 void main() \
 { \
+if (initPick.a >= 0.0) {\
+gl_FragColor = color; \
+}\
+else { \
 gl_FragColor = color*texture2D(texture,texCoord); \
+} \
 } \
 "
 
@@ -81,7 +95,7 @@ typedef vec4 point4;
 typedef vec4 color4;
 
 // a large number, to ensure that there is enough room
-const int NumVertices = 1000000; 
+const int NumVertices = 10000000; 
 
 // arrays of points and colors, to send to the graphics card
 static point4 points[NumVertices];
@@ -101,6 +115,20 @@ vec2    tex_coords[NumVertices];
 // the amount of time in seconds since the the program started
 GLfloat currentTime = 0.0;
 
+// door variables
+static int CLOSED = 0;
+static int OTC = 1; //Open to Close
+static int CTO = 2; //Close to Open
+static int OPEN = 3;
+static const int numDoors = 8;
+int doorStates[numDoors];
+int rotateDoor[numDoors];
+
+// Light Switch Variables
+static int OFF= 0;
+static int ON = 1;
+static const int numLights = 7;
+int lightStates[numLights];
 
 //----------------------------------------------------------------------------
 // our matrix stack
@@ -115,6 +143,23 @@ static GLuint       ModelView, Projection, CollisionView, CollisionProjection;
 //----------------------------------------------------------------------------
 // the number of vertices we've loaded so far into the points and colors arrays
 static int Index = 0;
+
+//-----------------------------------------------------------------------------
+//dominoFall-callback
+static void activateCallback(int code) {
+	cout << "pickID: " << code << endl;
+	if ((code != 0) && (doorStates[code - 1] == CLOSED)){
+		doorStates[code - 1] = CTO;
+	}
+}
+
+static void deactivateCallback(int code){
+	cout << "pickID: " << code << endl;
+	if ((code != 0) && (doorStates[code - 1] == OPEN)){
+		doorStates[code - 1] = OTC;
+	}
+}
+
 
 
 //Parses a .obj file
@@ -298,22 +343,93 @@ static void drawScene() {
 	// enter domain for local transformations
     mvstack.push(model_view);
 	
-	float s = 2.2;
+	float s = 40;
 	// scale the scene so that it fits nicely in the window
 	model_view *= Scale(s, s, s);
-		
-	// rotate each individual piece
-	for (int i = 0; i < NUM_OBJECTS; i++) {
+	
+	//Doors
+	for (int i = 0; i < numDoors; i++){
+		mvstack.push( model_view );
+		//initial door transformations
+		switch (i) {
+		case 0:
+			model_view *= Translate( 1.5, 1, 10);
+			break;
+		case 1:
+			model_view *= RotateY(90);
+			model_view *= Translate(14, 1, 5);
+			break;
+		case 2:
+			model_view *= RotateY(90);
+			model_view *= Translate(14, 1, -5);
+			break;
+		case 3:
+			model_view *= RotateY(90);
+			model_view *= Translate(-5.5, 1, 5);
+			break;
+		case 4:
+			model_view *= RotateY(90);
+			model_view *= Translate(-5.5, 1, -5);
+			break;
+		case 5:
+			model_view *= RotateY(90);
+			model_view *= Translate(50, 0, 0);
+			break;
+		case 6:
+			model_view *= RotateY(90);
+			model_view *= Translate(50, 0, 0);
+			break;
+		case 7:
+			model_view *= RotateY(90);
+			model_view *= Translate(50, 0, 0);
+			break;
+		}
+
+		// ------ Door States -------
+		// Closed to Open Movement
+		if (doorStates[i] == CTO){
+			rotateDoor[i] -= 5.0;
+			model_view *= RotateY(rotateDoor[i]);
+
+			if (rotateDoor[i] <= -90){
+				doorStates[i] = OPEN;
+			}
+		}
+
+		// Open to Closed Movement
+		if (doorStates[i] == OTC){
+			rotateDoor[i] += 5.0;
+			model_view *= RotateY(rotateDoor[i]);
+
+			if (rotateDoor[i] >= 0){
+				doorStates[i] = CLOSED;
+			}
+		}
+
+		// Open Door
+		if (doorStates[i] == OPEN){
+			model_view *= RotateY(rotateDoor[i]);
+		}
+
+
+		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
+		setPickId(i + 1);
+		// draw the (transformed) object
+		glDrawArrays(GL_TRIANGLES, objects[0].getStartIdx(), objects[0].getCount());
+		clearPickId();
+
+		model_view = mvstack.pop();
+	}
+
+	for (int i = 1; i < NUM_OBJECTS; i++) {
 		mvstack.push( model_view ); // enter local transformation domain
-		//model_view *= Translate(30, 0, 0); // move 30 away from center in (logical) x-direction
-		model_view *= Scale(20, 20, 20); // make it larger by a factor of 20
 		
 		// send the transformation matrix to the GPU
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
-
+		setPickId(i + 1 + numDoors);
 		// draw the (transformed) object
 		glDrawArrays(GL_TRIANGLES, objects[i].getStartIdx(), objects[i].getCount());
-		
+		clearPickId();
 		model_view = mvstack.pop(); // undo transformations for the just-drawn object
 		
 	}
@@ -390,9 +506,16 @@ static bool detectCollisions() {
 // callback function: handles a mouse-press
 static void mouse(int btn, int state, int x, int y) {
 	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-	
+		cout << "mouse: " << x << ", " << y << endl;
+		startPicking(activateCallback, x, y);
+	}
+
+	if (btn == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+		cout << "mouse: " << x << ", " << y << endl;
+		startPicking(deactivateCallback, x, y);
 	}
 }
+
 
 //----------------------------------------------------------------------------
 // callback function: handles a window-resizing
@@ -435,8 +558,11 @@ static void reshape(int width, int height) {
 static void init(void) {
 
 	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("house4.obj", &Index, points, colors, normals,tex_coords);
-
+	objects[0] = genObject("door.obj", &Index, points, colors, normals,tex_coords);
+	objects[1] = genObject("house.obj", &Index, points, colors, normals, tex_coords);
+	objects[2] = genObject("couch.obj", &Index, points, colors, normals, tex_coords);
+	objects[3] = genObject("bookshelf.obj", &Index, points, colors, normals, tex_coords);
+	
 
 	static GLfloat pic[1024][1024][3];
 
@@ -479,8 +605,7 @@ static void init(void) {
 
 
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, image2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -508,7 +633,6 @@ static void init(void) {
 	
 
 	// Load shaders and use the resulting shader program
-	//GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 	GLuint program = InitShader2(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
 
 	glUseProgram(program);
@@ -564,9 +688,10 @@ static void init(void) {
 	Projection = glGetUniformLocation(program, "Projection");
 	CollisionView = glGetUniformLocation(program, "CollisionView");
 	CollisionProjection = glGetUniformLocation(program, "CollisionProjection");
-	
+	setGpuPickColorId(glGetUniformLocation(program, "PickColor"));
 
 	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
@@ -575,7 +700,7 @@ static void init(void) {
 
 	// Starting position for the camera	
 	model_view_start = Translate(0, -200, -1000);
-	model_view_start *= RotateY(-90);
+	//model_view_start *= RotateY(-90);
 
 }
 
@@ -595,8 +720,13 @@ static void tick(int n) {
 	// draw the new scene
 	drawScene();
 
-	//swap the buffers
-	glutSwapBuffers();
+	if (inPickingMode()) {
+		endPicking();
+	}
+	else {
+		//swap the buffers
+		glutSwapBuffers();
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -697,7 +827,7 @@ int main( int argc, char **argv ) {
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
 	glutCreateWindow("CS 432, Assignment 1");
-	glutFullScreen();
+	//glutFullScreen();
 	glewInit();
 
 	// call the initializer function
