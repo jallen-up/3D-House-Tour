@@ -39,6 +39,10 @@ attribute vec4 vColor;\
 varying vec2 texCoord;\
 varying vec4 color; \
 varying vec4 initPick; \
+uniform vec4 AmbientProducts[7];\
+uniform vec4 DiffuseProducts[7];\
+uniform vec4 SpecularProducts[7];\
+uniform vec4 LightPositions[7];\
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
 uniform mat4 Projection; \
@@ -61,13 +65,22 @@ vec3 L = normalize(LightPosition.xyz - pos);\
 vec3 E = normalize(-pos);\
 vec3 H = normalize(L + E);\
 vec3 N = vNormal;\
-vec4 ambient = AmbientProduct;\
-float Kd = max(dot(L, N), 0.0);\
-vec4  diffuse = Kd*DiffuseProduct;\
-float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-vec4  specular = Ks * SpecularProduct;\
-if (dot(L, N) < 0.0) {\
-specular = vec4(0.0, 0.0, 0.0, 1.0);\
+vec4 ambient = AmbientProducts[0];\
+vec4 diffuse = vec4(0.0,0.0,0.0,1.0);\
+vec4 specular = vec4(0.0,0.0,0.0,1.0);\
+int i = 0;\
+for(i = 0; i < 2; i++){\
+	vec3 L = normalize(LightPositions[i].xyz - pos); \
+	vec3 H = normalize(L + E);\
+	float Kd = max(dot(L, N), 0.0);\
+	diffuse += Kd*DiffuseProducts[i];\
+	float Ks = pow(max(dot(N, H), 0.0), Shininess);\
+	vec4 specular_i = Ks * SpecularProducts[i];\
+	if (dot(L, N) < 0.0) {\
+		specular += vec4(0.0, 0.0, 0.0, 1.0);\
+	} else {\
+		specular += specular_i;\
+	}\
 }\
 color = ambient + diffuse + specular;\
 }\
@@ -655,30 +668,52 @@ static void init(void) {
 
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
-	// Initialize shader lighting parameters
-	point4 light_position(1.0, 1.0, -1.0, 0.0);
-	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
-	color4 light_diffuse(1.0, 1.0, 1.0, 1.0);
-	color4 light_specular(1.0, 1.0, 1.0, 1.0);
-
+	//Material properties
 	color4 material_ambient(0.0, 0.5, 0.5, 1.0);
 	color4 material_diffuse(0.5, 0.5, 0.5, 1.0);
 	color4 material_specular(1.0, 1.0, 1.0, 1.0);
 	float  material_shininess = 1.0;
 
+	// Initialize shader lighting parameters
+	point4 light_position(2000.0, 0.0, 0.0, 0.0);
+	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
+	color4 light_diffuse(0.5, 0.5, 0.5, 1.0);
+	color4 light_specular(1.0, 1.0, 1.0, 1.0);
+
 	color4 ambient_product = light_ambient * material_ambient;
 	color4 diffuse_product = light_diffuse * material_diffuse;
 	color4 specular_product = light_specular * material_specular;
 
-	glUniform4fv(glGetUniformLocation(program, "AmbientProduct"),
+	glUniform4fv(glGetUniformLocation(program, "AmbientProducts[0]"),
 		1, ambient_product);
-	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"),
+
+	glUniform4fv(glGetUniformLocation(program, "DiffuseProducts[0]"),
 		1, diffuse_product);
-	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"),
+
+	glUniform4fv(glGetUniformLocation(program, "SpecularProducts[0]"),
 		1, specular_product);
 
-	glUniform4fv(glGetUniformLocation(program, "LightPosition"),
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[0]"),
 		1, light_position);
+
+	point4 light_position1(-2000.0, 0.0, 0.0, 0.0);
+	color4 light_ambient1(0.1, 0.1, 0.1, 1.0);
+	color4 light_diffuse1(0.5, 0.5, 0.5, 1.0);
+	color4 light_specular1(1.0, 1.0, 1.0, 1.0);
+
+	color4 ambient_product1 = light_ambient1 * material_ambient;
+	color4 diffuse_product1 = light_diffuse1 * material_diffuse;
+	color4 specular_product1 = light_specular1 * material_specular;
+
+	glUniform4fv(glGetUniformLocation(program, "AmbientProducts[1]"),
+		1, ambient_product1);
+	glUniform4fv(glGetUniformLocation(program, "DiffuseProducts[1]"),
+		1, diffuse_product1);
+	glUniform4fv(glGetUniformLocation(program, "SpecularProducts[1]"),
+		1, specular_product1);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[1]"),
+		1, light_position1);
+
 
 	glUniform1f(glGetUniformLocation(program, "Shininess"),
 		material_shininess);
