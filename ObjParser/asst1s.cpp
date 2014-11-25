@@ -1,5 +1,4 @@
-// Starter file for CS 432, Assignment 1.
-// *****THIS IS THE FILE THAT STUDENTS SHOULD EDIT*****
+// Starter file for CS 432, Assignment 5.
 
 #include "cs432.h"
 #include "vec.h"
@@ -28,7 +27,7 @@ using namespace std;
 // The number of distance units that are in our viewport
 #define VIEWSIZE 120
 
-#define NUM_OBJECTS 20
+#define NUM_OBJECTS 14
 
 // define our shader code
 #define VERTEX_SHADER_CODE "\
@@ -127,6 +126,7 @@ static vec3 normals[NumVertices];
 const int  TextureSize = 1024;
 const int trick = 128;
 GLuint textures[14];
+bool mapTextures;
 
 GLubyte image[TextureSize][TextureSize][3];
 GLubyte image1[TextureSize][TextureSize][3];
@@ -402,7 +402,7 @@ static void drawScene() {
 	// enter domain for local transformations
     mvstack.push(model_view);
 	
-	float s = 40;
+	GLfloat s = 40;
 	// scale the scene so that it fits nicely in the window
 	model_view *= Scale(s, s, s);
 	
@@ -473,9 +473,10 @@ static void drawScene() {
 
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(i + 1);
-		glBindTexture(GL_TEXTURE_2D, textures[1]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[1]);
 		// draw the (transformed) door objects
 		glDrawArrays(GL_TRIANGLES, objects[0].getStartIdx(), objects[0].getCount());
+
 		clearPickId();
 
 		model_view = mvstack.pop();
@@ -485,7 +486,7 @@ static void drawScene() {
 		mvstack.push( model_view ); 
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(1 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[0]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[0]);
 		glDrawArrays(GL_TRIANGLES, objects[1].getStartIdx(), objects[1].getCount());
 		clearPickId();
 		model_view = mvstack.pop(); 
@@ -497,7 +498,7 @@ static void drawScene() {
 		model_view *= Scale(1.3, 1.3, 1.3);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(2 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[2]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[2]);
 		glDrawArrays(GL_TRIANGLES, objects[2].getStartIdx(), objects[2].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -509,7 +510,7 @@ static void drawScene() {
 		model_view *= Scale(1.3, 1.3, 1.3);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(3 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[3]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[3]);
 		glDrawArrays(GL_TRIANGLES, objects[3].getStartIdx(), objects[3].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -520,7 +521,7 @@ static void drawScene() {
 		model_view *= RotateY(45);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(4 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[4]);
 		glDrawArrays(GL_TRIANGLES, objects[4].getStartIdx(), objects[4].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -531,7 +532,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(5 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -542,7 +543,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(6 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -553,7 +554,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(7 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -564,7 +565,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(8 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -575,7 +576,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(9 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -586,7 +587,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(9 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[13]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -597,7 +598,7 @@ static void drawScene() {
 		model_view *= Scale(1.2, 1, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(10 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[5]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[5]);
 		glDrawArrays(GL_TRIANGLES, objects[6].getStartIdx(), objects[6].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -609,7 +610,7 @@ static void drawScene() {
 		model_view *= Scale(2, 1, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(11 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[5]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[5]);
 		glDrawArrays(GL_TRIANGLES, objects[6].getStartIdx(), objects[6].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -621,10 +622,10 @@ static void drawScene() {
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(12 + numDoors);
 		if (tv1IsOn){
-			glBindTexture(GL_TEXTURE_2D, textures[7]);
+			if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[7]);
 		}
 		else{
-			glBindTexture(GL_TEXTURE_2D, textures[6]);
+			if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[6]);
 		}
 		glDrawArrays(GL_TRIANGLES, objects[7].getStartIdx(), objects[7].getCount());
 		clearPickId();
@@ -637,10 +638,10 @@ static void drawScene() {
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(13 + numDoors);
 		if (tv2IsOn){
-			glBindTexture(GL_TEXTURE_2D, textures[7]);
+			if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[7]);
 		}
 		else{
-			glBindTexture(GL_TEXTURE_2D, textures[6]);
+			if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[6]);
 		}
 		glDrawArrays(GL_TRIANGLES, objects[7].getStartIdx(), objects[7].getCount());
 		clearPickId();
@@ -651,7 +652,7 @@ static void drawScene() {
 		model_view *= Translate(-6, 0, 15);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(14 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[8]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[8]);
 		glDrawArrays(GL_TRIANGLES, objects[8].getStartIdx(), objects[8].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -661,7 +662,7 @@ static void drawScene() {
 		model_view *= Translate(6, 0, 15);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(15 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[8]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[8]);
 		glDrawArrays(GL_TRIANGLES, objects[8].getStartIdx(), objects[8].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -672,7 +673,7 @@ static void drawScene() {
 		model_view *= RotateY(90);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(16 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[9]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[9]);
 		glDrawArrays(GL_TRIANGLES, objects[9].getStartIdx(), objects[9].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -682,7 +683,7 @@ static void drawScene() {
 		model_view *= Translate(-15, 1, 2);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(17 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[10]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[10]);
 		glDrawArrays(GL_TRIANGLES, objects[10].getStartIdx(), objects[10].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -693,7 +694,7 @@ static void drawScene() {
 		model_view *= Scale(0.8, 0.8, 0.8);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(18 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[4]);
 		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -705,7 +706,7 @@ static void drawScene() {
 		model_view *= Scale(0.8, 0.8, 0.8);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(19 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[4]);
 		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -717,7 +718,7 @@ static void drawScene() {
 		model_view *= Scale(0.8, 0.8, 0.8);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(20 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[4]);
 		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -729,7 +730,7 @@ static void drawScene() {
 		model_view *= Scale(0.8, 0.8, 0.8);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(21 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[4]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[4]);
 		glDrawArrays(GL_TRIANGLES, objects[11].getStartIdx(), objects[11].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -740,7 +741,7 @@ static void drawScene() {
 		model_view *= RotateY(90);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(22 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[11]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[11]);
 		glDrawArrays(GL_TRIANGLES, objects[12].getStartIdx(), objects[12].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -752,7 +753,7 @@ static void drawScene() {
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
 		setPickId(23 + numDoors);
-		glBindTexture(GL_TEXTURE_2D, textures[12]);
+		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[12]);
 		glDrawArrays(GL_TRIANGLES, objects[13].getStartIdx(), objects[13].getCount());
 		clearPickId();
 		model_view = mvstack.pop();
@@ -882,22 +883,14 @@ static void init(void) {
 
 	// Load shaders and use the resulting shader program
 	program = InitShader2(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
+	
+	char* objFiles[NUM_OBJECTS] = { "door.obj", "house.obj", "couch.obj", "bookshelf.obj", "end_table.obj", "lamp.obj", "bed.obj", "tv.obj",
+									"tree.obj", "bathtub.obj", "table.obj", "chair.obj", "toilet.obj", "fridge.obj"};
 
-	// generate the objects, storing a reference to each in the 'objects' array
-	objects[0] = genObject("door.obj", &Index, points, colors, normals,tex_coords);
-	objects[1] = genObject("house.obj", &Index, points, colors, normals, tex_coords);
-	objects[2] = genObject("couch.obj", &Index, points, colors, normals, tex_coords);
-	objects[3] = genObject("bookshelf.obj", &Index, points, colors, normals, tex_coords);
-	objects[4] = genObject("end_table.obj", &Index, points, colors, normals, tex_coords);
-	objects[5] = genObject("lamp.obj", &Index, points, colors, normals, tex_coords);
-	objects[6] = genObject("bed.obj", &Index, points, colors, normals, tex_coords);
-	objects[7] = genObject("tv.obj", &Index, points, colors, normals, tex_coords);
-	objects[8] = genObject("tree.obj", &Index, points, colors, normals, tex_coords);
-	objects[9] = genObject("bathtub.obj", &Index, points, colors, normals, tex_coords);
-	objects[10] = genObject("table.obj", &Index, points, colors, normals, tex_coords);
-	objects[11] = genObject("chair.obj", &Index, points, colors, normals, tex_coords);
-	objects[12] = genObject("toilet.obj", &Index, points, colors, normals, tex_coords);
-	objects[13] = genObject("fridge.obj", &Index, points, colors, normals, tex_coords);
+	//parse .obj files
+	for (int i = 0; i < NUM_OBJECTS; i++){
+		objects[i] = genObject(objFiles[i], &Index, points, colors, normals, tex_coords);
+	}
 
 	static GLfloat pic[1024][1024][3];
 	static GLfloat pic2[4096][4096][3];
@@ -905,8 +898,8 @@ static void init(void) {
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
-	readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
-	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);
+	/*readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
+	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);*/
 	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
 	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -925,8 +918,8 @@ static void init(void) {
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image8);
 	readPpmImage("table.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image9);
-	//readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	//gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);
+	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);
 	readPpmImage("toilet.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image11);
 	readPpmImage("fridge.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1193,7 +1186,6 @@ static void init(void) {
 
 	// Starting position for the camera	
 	model_view_start = Translate(0, -200, -1000);
-	//model_view_start *= RotateY(-90);
 
 }
 
@@ -1218,15 +1210,32 @@ static void tick(int n) {
 	// draw the new scene
 	glutPostRedisplay();
 
-	
-
-	// draw the new scene
-	drawScene();
 
 	if (inPickingMode()) {
+
+		GLfloat left = -100.0, right = 100.0;
+		GLfloat bottom = -100.0, top = 100.0;
+		GLfloat zNear = -100.0, zFar = 100.0;
+
+		mat4 DistanceProjection = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
+		DistanceProjection = Perspective(50, 1, 1.0, 300);
+		glUniformMatrix4fv(Projection, 1, GL_TRUE, DistanceProjection);
+
+		//draw the scene with smaller perspective
+		drawScene();
 		endPicking();
+
+		mat4 projection1 = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
+		projection1 = Perspective(50, 1, 1.0, 20000);
+		glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
+
 	}
 	else {
+		// draw the new scene
+		mapTextures = true;
+		drawScene();
+		mapTextures = false;
+
 		//swap the buffers
 		glutSwapBuffers();
 	}
