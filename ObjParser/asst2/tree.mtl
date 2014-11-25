@@ -1,5 +1,5 @@
-# Blender MTL File: 'untitled.blend'
-# Material Count: 2
+# Blender MTL File: 'tree.blend'
+# Material Count: 1
 
 newmtl None
 Ns 0
@@ -8,12 +8,4 @@ Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
 d 1
 illum 2
-
-newmtl None_Untitled
-Ns 0
-Ka 0.000000 0.000000 0.000000
-Kd 0.8 0.8 0.8
-Ks 0.8 0.8 0.8
-d 1
-illum 2
-map_Kd F:\leaves.png
+map_Kd tree.png

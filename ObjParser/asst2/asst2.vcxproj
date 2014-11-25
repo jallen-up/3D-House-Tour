@@ -44,12 +44,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>F:\dev\assimp-3.1.1-win-binaries\include;F:\dev\cs432Windows\glew-1.7.0\include;F:\dev\cs432Windows\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\include;C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>F:\dev\assimp-3.1.1-win-binaries\lib32;F:\dev\cs432Windows\glew-1.7.0\lib;F:\dev\cs432Windows\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freeglut.lib;glew32.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\lib;C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,6 +79,7 @@
     <ClCompile Include="..\cs432.cpp" />
     <ClCompile Include="..\mat.cpp" />
     <ClCompile Include="..\matStack.cpp" />
+    <ClCompile Include="..\picking.cpp" />
     <ClCompile Include="..\ppm.cpp" />
     <ClCompile Include="..\torus.cpp" />
     <ClCompile Include="..\vec.cpp" />
@@ -87,6 +88,7 @@
     <ClInclude Include="..\cs432.h" />
     <ClInclude Include="..\mat.h" />
     <ClInclude Include="..\matStack.h" />
+    <ClInclude Include="..\picking.h" />
     <ClInclude Include="..\ppm.h" />
     <ClInclude Include="..\torus.h" />
     <ClInclude Include="..\vec.h" />

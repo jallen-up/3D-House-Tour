@@ -43,6 +43,7 @@ uniform vec4 DiffuseProducts[7];\
 uniform vec4 SpecularProducts[7];\
 uniform vec4 LightPositions[7];\
 uniform int LightStates[7];\
+uniform vec4 SceneAmbient;\
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
 uniform mat4 Projection; \
@@ -66,11 +67,11 @@ vec3 L = normalize(test.xyz - pos);\
 vec3 E = normalize(-pos);\
 vec3 H = normalize(L + E);\
 vec3 N = vNormal;\
-vec4 ambient = AmbientProducts[0];\
+vec4 ambient = SceneAmbient;\
 vec4 diffuse = vec4(0.0,0.0,0.0,1.0);\
 vec4 specular = vec4(0.0,0.0,0.0,1.0);\
 int i = 0;\
-for(i = 0; i < 3; i++){\
+for(i = 0; i < 7; i++){\
 	if( LightStates[i] == 0 ){\
 		ambient += vec4(0.0,0.0,0.0,1.0);\
 		diffuse += vec4(0.0,0.0,0.0,1.0);\
@@ -79,9 +80,9 @@ for(i = 0; i < 3; i++){\
 		vec3 L = normalize(LightPositions[i].xyz - pos); \
 		vec3 H = normalize(L + E);\
 		float Kd = max(dot(L, N), 0.0);\
-		diffuse += 10 *(Kd*DiffuseProducts[i]) / distance(LightPositions[i].xyz,vPosition.xyz);\
+		diffuse += 10 *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
 		float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-		vec4 specular_i = 10 * (Ks * SpecularProducts[i])/distance(LightPositions[i].xyz,vPosition.xyz);\
+		vec4 specular_i = 10 * (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
 		if (dot(L, N) < 0.0) {\
 			specular += vec4(0.0, 0.0, 0.0, 1.0);\
 		} else {\
@@ -164,10 +165,13 @@ static int OFF= 0;
 static int ON = 1;
 static const int numLights = 7;
 int lightStates[numLights];
-
+int lightIntensities[numLights];
 // TV variable
 static bool tv1IsOn = false;
 static bool tv2IsOn = false;
+
+//Scene ambient
+vec4 sceneAmbient;
 
 GLuint program;
 //----------------------------------------------------------------------------
@@ -199,6 +203,22 @@ static void activateCallback(int code) {
 		lightStates[2] = ON;
 		glUniform1i(glGetUniformLocation(program, "LightStates[2]"), lightStates[2]);
 	}
+	if (code == 15) {
+		lightStates[3] = ON;
+		glUniform1i(glGetUniformLocation(program, "LightStates[3]"), lightStates[3]);
+	}
+	if (code == 16){
+		lightStates[4] = ON;
+		glUniform1i(glGetUniformLocation(program, "LightStates[4]"), lightStates[4]);
+	}
+	if (code == 17){
+		lightStates[5] = ON;
+		glUniform1i(glGetUniformLocation(program, "LightStates[5]"), lightStates[5]);
+	}
+	if (code == 18){
+		lightStates[6] = ON;
+		glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
+	}
 	if (code == 20) tv1IsOn = true;
 	if (code == 21) tv2IsOn = true;
 }
@@ -209,12 +229,28 @@ static void deactivateCallback(int code){
 		doorStates[code - 1] = OTC;
 	}
 	if (code == 13){
-		lightStates[1] = OFF;
+		lightStates[1] = 0;
 		glUniform1i(glGetUniformLocation(program, "LightStates[1]"), lightStates[1]);
 	}
 	if (code == 14) {
-		lightStates[2] = OFF;
+		lightStates[2] = 0;
 		glUniform1i(glGetUniformLocation(program, "LightStates[2]"), lightStates[2]);
+	}
+	if (code == 15) {
+		lightStates[3] = 0;
+		glUniform1i(glGetUniformLocation(program, "LightStates[3]"), lightStates[3]);
+	}
+	if (code == 16){
+		lightStates[4] = 0;
+		glUniform1i(glGetUniformLocation(program, "LightStates[4]"), lightStates[4]);
+	}
+	if (code == 17){
+		lightStates[5] = 0;
+		glUniform1i(glGetUniformLocation(program, "LightStates[5]"), lightStates[5]);
+	}
+	if (code == 18){
+		lightStates[6] = 0;
+		glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
 	}
 	if (code == 20) tv1IsOn = false;
 	if (code == 21) tv2IsOn = false;
@@ -1091,8 +1127,7 @@ static void init(void) {
 	color4 material_specular(1.0, 1.0, 1.0, 1.0);
 	float  material_shininess = 1.0;
 
-	// Initialize shader lighting parameters
-	point4 light_position(2000.0, 0.0, 0.0, 0.0);
+	//Light Properties
 	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
 	color4 light_diffuse(0.5, 0.5, 0.5, 1.0);
 	color4 light_specular(1.0, 1.0, 1.0, 1.0);
@@ -1101,62 +1136,33 @@ static void init(void) {
 	color4 diffuse_product = light_diffuse * material_diffuse;
 	color4 specular_product = light_specular * material_specular;
 
-	glUniform4fv(glGetUniformLocation(program, "AmbientProducts[0]"),
-		1, ambient_product);
+	glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
+	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);
+	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
 
-	glUniform4fv(glGetUniformLocation(program, "DiffuseProducts[0]"),
-		1, diffuse_product);
+	point4 light_position(2000.0, 0.0, 0.0, 0.0); //Sun
+	point4 light_position1(17.0, 5.0, -14, 0.0); //Living room
+	point4 light_position2(-17.0, 5.0, -14, 0.0); //Kitchen
+	point4 light_position3(-17.0, 10.0, -14, 0.0); //Master Bedroom
+	point4 light_position4(17.0, 10.0, -14, 0.0); //Bathroom
+	point4 light_position5(17.0, 10.0, 6, 0.0); //Small Bedroom	
+	point4 light_position6(6.0, 10.0, -2.0, 0.0); //Foyer
 
-	glUniform4fv(glGetUniformLocation(program, "SpecularProducts[0]"),
-		1, specular_product);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[0]"), 1, light_position);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[1]"), 1, light_position1);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[2]"), 1, light_position2);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[3]"), 1, light_position3);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[4]"), 1, light_position4);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[5]"), 1, light_position5);
+	glUniform4fv(glGetUniformLocation(program, "LightPositions[6]"), 1, light_position6);
 
-	glUniform4fv(glGetUniformLocation(program, "LightPositions[0]"),
-		1, light_position);
+	//Initialize the ambient lighting for the scene
+	sceneAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+	glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 
-	point4 light_position1(14.0, 5.0, -17.5, 0.0);
-	color4 light_ambient1(0.1, 0.1, 0.1, 1.0);
-	color4 light_diffuse1(0.5, 0.5, 0.5, 1.0);
-	color4 light_specular1(1.0, 1.0, 1.0, 1.0);
-
-	color4 ambient_product1 = light_ambient1 * material_ambient;
-	color4 diffuse_product1 = light_diffuse1 * material_diffuse;
-	color4 specular_product1 = light_specular1 * material_specular;
-
-	glUniform4fv(glGetUniformLocation(program, "AmbientProducts[1]"),
-		1, ambient_product1);
-	glUniform4fv(glGetUniformLocation(program, "DiffuseProducts[1]"),
-		1, diffuse_product1);
-	glUniform4fv(glGetUniformLocation(program, "SpecularProducts[1]"),
-		1, specular_product1);
-	glUniform4fv(glGetUniformLocation(program, "LightPositions[1]"),
-		1, light_position1);
-
-	point4 light_position2(-14.0, 5.0, -17.5, 0.0);
-	color4 light_ambient2(0.1, 0.1, 0.1, 1.0);
-	color4 light_diffuse2(0.5, 0.5, 0.5, 1.0);
-	color4 light_specular2(1.0, 1.0, 1.0, 1.0);
-
-	color4 ambient_product2 = light_ambient2 * material_ambient;
-	color4 diffuse_product2 = light_diffuse2 * material_diffuse;
-	color4 specular_product2 = light_specular2 * material_specular;
-
-	glUniform4fv(glGetUniformLocation(program, "AmbientProducts[2]"),
-		1, ambient_product2);
-	glUniform4fv(glGetUniformLocation(program, "DiffuseProducts[2]"),
-		1, diffuse_product2);
-	glUniform4fv(glGetUniformLocation(program, "SpecularProducts[2]"),
-		1, specular_product2);
-	glUniform4fv(glGetUniformLocation(program, "LightPositions[2]"),
-		1, light_position2);
-
-
-	lightStates[0] = 0;
-	lightStates[1] = 0;
-	lightStates[2] = 0;
-	lightStates[3] = 0;
-	lightStates[4] = 0;
-	lightStates[5] = 0;
-	lightStates[6] = 0;
+	for (int i = 0; i < 7; i++){
+		lightStates[i] = 0;
+	}
 
 	//SEND LIGHT STATES
 	glUniform1i(glGetUniformLocation(program, "LightStates[0]"), lightStates[0]);
@@ -1325,13 +1331,13 @@ static void keyboard( unsigned char key, int x, int y )
 	case 'k': case 'K':
 		model_view_start = RotateX(1.5*factor)*model_view_start;
 		break;
-	case '1':
-		lightStates[0] = 1;
-		glUniform1i(glGetUniformLocation(program, "LightStates[0]"), lightStates[0]);
+	case '[':
+		sceneAmbient = vec4(0.1, 0.1, 0.1, 1.0);
+		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
-	case '2':
-		lightStates[0] = 0;
-		glUniform1i(glGetUniformLocation(program, "LightStates[0]"), lightStates[0]);
+	case ']':
+		sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
+		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
 
 	}//NAV SWITCH
