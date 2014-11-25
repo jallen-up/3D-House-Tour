@@ -1,60 +1,64 @@
-﻿Build started 11/24/2014 10:01:08 PM.
-     1>Project "C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\asst2\asst2.vcxproj" on node 2 (Build target(s)).
+﻿Build started 11/25/2014 4:47:09 AM.
+     1>Project "C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\asst2\asst2.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\include" /I"C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\asst1s.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\include" /I"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\asst1s.cpp
          asst1s.cpp
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\cs432.h(71): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(409): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(421): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(495): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(496): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(497): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(518): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(520): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(486): warning C4244: '-=' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(487): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(496): warning C4244: '+=' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(497): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(506): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(534): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(546): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(568): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(579): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(590): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(601): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(612): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(623): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(634): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(730): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(742): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(754): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(766): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(789): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(854): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1131): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1190): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1206): warning C4305: '+=' : truncation from 'double' to 'GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1256): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1264): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1269): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1274): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1285): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1296): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1307): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1317): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1320): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1323): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1326): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1329): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1332): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1335): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
-     1>c:\users\seth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1339): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\cs432.h(71): warning C4305: 'initializing' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(397): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(409): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(421): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(495): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(496): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(497): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(518): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(520): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(523): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(533): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\mat.h(540): warning C4244: '=' : conversion from 'double' to 'GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(493): warning C4244: '-=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(494): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(503): warning C4244: '+=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(504): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(513): warning C4244: 'argument' : conversion from 'int' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(541): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(553): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(575): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(586): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(597): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(608): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(619): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(630): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(641): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(737): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(749): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(761): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(773): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(796): warning C4305: 'argument' : truncation from 'double' to 'const GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(861): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(959): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1027): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1329): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1403): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1420): warning C4305: '+=' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1470): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1478): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1483): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1488): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1499): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1510): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1521): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1531): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1534): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1537): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1540): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1543): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1546): warning C4244: 'argument' : conversion from 'double' to 'const GLfloat', possible loss of data
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1549): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1551): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1555): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
+     1>c:\users\coldfireseth\documents\visual studio 2013\projects\simple-obj-parser\objparser\asst1s.cpp(1557): warning C4305: 'argument' : truncation from 'double' to 'GLfloat'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\lib" /LIBPATH:"C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\lib" freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.lib" /MACHINE:X86 Debug\asst1s.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\lib" /LIBPATH:"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\lib" freeglut.lib glew32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.lib" /MACHINE:X86 Debug\asst1s.obj
          Debug\cs432.obj
          Debug\mat.obj
          Debug\matStack.obj
@@ -62,9 +66,9 @@
          Debug\ppm.obj
          Debug\torus.obj
          Debug\vec.obj
-         asst2.vcxproj -> C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.exe
-     1>Done Building Project "C:\Users\Seth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\asst2\asst2.vcxproj" (Build target(s)).
+         asst2.vcxproj -> C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\Debug\asst2.exe
+     1>Done Building Project "C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\simple-obj-parser\ObjParser\asst2\asst2.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.14
+Time Elapsed 00:00:00.96

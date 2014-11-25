@@ -38,11 +38,9 @@ attribute vec4 vColor;\
 varying vec2 texCoord;\
 varying vec4 color; \
 varying vec4 initPick; \
-uniform vec4 AmbientProducts[7];\
-uniform vec4 DiffuseProducts[7];\
-uniform vec4 SpecularProducts[7];\
 uniform vec4 LightPositions[7];\
 uniform int LightStates[7];\
+uniform int LightIntensities[7];\
 uniform vec4 SceneAmbient;\
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
@@ -77,12 +75,12 @@ for(i = 0; i < 7; i++){\
 		diffuse += vec4(0.0,0.0,0.0,1.0);\
 		specular += vec4(0.0,0.0,0.0,1.0);\
 	} else { \
-		vec3 L = normalize(LightPositions[i].xyz - pos); \
+		vec3 L = normalize(LightPositions[i].xyz - vPosition.xyz); \
 		vec3 H = normalize(L + E);\
 		float Kd = max(dot(L, N), 0.0);\
-		diffuse += 10 *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
+		diffuse += LightIntensities[i] *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
 		float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-		vec4 specular_i = 10 * (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
+		vec4 specular_i = LightIntensities[i]* (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
 		if (dot(L, N) < 0.0) {\
 			specular += vec4(0.0, 0.0, 0.0, 1.0);\
 		} else {\
@@ -129,6 +127,7 @@ const int trick = 128;
 GLuint textures[14];
 bool mapTextures;
 
+
 GLubyte image[TextureSize][TextureSize][3];
 GLubyte image1[TextureSize][TextureSize][3];
 GLubyte image2[TextureSize][TextureSize][3];
@@ -143,6 +142,7 @@ GLubyte image10[TextureSize][TextureSize][3];
 GLubyte image11[TextureSize][TextureSize][3];
 GLubyte image12[TextureSize][TextureSize][3];
 GLubyte image13[TextureSize][TextureSize][3];
+
 
 GLubyte houseImage[4096][4096][3];
 
@@ -172,6 +172,13 @@ static bool tv2IsOn = false;
 
 //Scene ambient
 vec4 sceneAmbient;
+bool collisionView = false;
+bool normalView = true;
+bool gravityView = false;
+
+color4 backgroundColor;
+int x_rotation = 0;
+GLfloat personHeight = 100.0;
 
 GLuint program;
 //----------------------------------------------------------------------------
@@ -798,11 +805,9 @@ static void drawScene() {
 }
 
 //----------------------------------------------------------------------------
-// Draws the scene in ortho view and writes to the frame buffer.   The frame 
-// Buffer is then read to look for a color other than megenta,  If it finds a color
-// other than the background color(magenta), it returns true, there has been a collision. 
-//  
-static bool detectCollisions() {
+// draws our scene
+//   Collission detection for the mouse
+static bool detectMouseCollisions() {
 
 	glClearColor(1.0, 0.0, 1.0, 1.0);
 
@@ -821,7 +826,7 @@ static bool detectCollisions() {
 		top /= aspect;
 	}
 
-	mat4 collision = Ortho(left, right, bottom, top, zNear, zFar);
+	mat4 collision = Ortho(left / 2, right / 2, bottom, top, zNear / 2, zFar / 2);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
 
 	//draw the scene in ortho
@@ -831,6 +836,75 @@ static bool detectCollisions() {
 	int centerPixelX = glutGet(GLUT_WINDOW_WIDTH) / 2;
 	int centerPixelY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
 	bool foundObject = false;
+	bool foundObject1 = false;
+	int i, j;
+
+	for (i = 0; i < collisionWidth; i++){
+		for (j = 0; j < collisionHeight; j++){
+			unsigned int data;
+			glReadPixels(centerPixelX - (collisionWidth / 2) + i, centerPixelY - (collisionHeight / 2) + j, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+			data &= 0xffffff;
+			//if we hit something, return true
+			if (data != 0xff00ff){
+				foundObject = true;
+			}
+
+		}
+	}
+
+	if (collisionView) glutSwapBuffers();
+
+	mat4 projection1 = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
+	projection1 = Perspective(50, 1, 1.0, 20000);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
+
+	glClearColor(0.529, 0.808, 0.980, 1.0);
+
+	//if we hit something return true
+	if (foundObject){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+
+//----------------------------------------------------------------------------
+// Draws the scene in ortho view and writes to the frame buffer.   The frame 
+// Buffer is then read to look for a color other than megenta,  If it finds a color
+// other than the background color(magenta), it returns true, there has been a collision. 
+//  
+static bool detectCollisions(unsigned char key) {
+
+	glClearColor(1.0, 0.0, 1.0, 1.0);
+
+	GLfloat left = -100.0, right = 100.0;
+	GLfloat bottom = -100.0, top = 100.0;
+	GLfloat zNear = -100.0, zFar = 100.0;
+
+	GLfloat aspect = GLfloat(glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT));
+
+	if (aspect > 1.0) {
+		left *= aspect;
+		right *= aspect;
+	}
+	else {
+		bottom /= aspect;
+		top /= aspect;
+	}
+
+	mat4 collision = Ortho(left/2, right/2, bottom, top, zNear/2, zFar/2);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
+
+	//draw the scene in ortho
+	drawScene();
+	int collisionWidth = glutGet(GLUT_WINDOW_WIDTH) / 20;
+	int collisionHeight = glutGet(GLUT_WINDOW_HEIGHT) / 20;
+	int centerPixelX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	int centerPixelY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+	bool foundObject = false;
+	bool foundObject1 = false;
 	int i,j;
 
 	for (i = 0; i < collisionWidth; i++){
@@ -845,7 +919,38 @@ static bool detectCollisions() {
 			
 		}
 	}
+
+	for (int k = 0; k < 10; k++){
+		unsigned int data;
+		glReadPixels(centerPixelX, k, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+		data &= 0xffffff;
+		//if we hit something, return true
+		if (data != 0xff00ff){
+			foundObject1 = true;
+		}
+	}
 	
+	//stair finder
+	if ((foundObject1) && (!foundObject)){
+		switch (key){
+		case 'w': case 'W':
+			model_view_start = Translate(0, -25, 2)*model_view_start;
+			break;
+		case 's': case 'S':
+			model_view_start = Translate(0, -25, -2)*model_view_start;
+			break;
+		case 'a': case 'A':
+			model_view_start = Translate(2, -25, 0)*model_view_start;
+			break;
+		case 'd': case 'D':
+			model_view_start = Translate(-2, -25, 0)*model_view_start;
+			break;
+		}
+
+
+	}
+
+	if (collisionView) glutSwapBuffers();
 
 	mat4 projection1 = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
 	projection1 = Perspective(50, 1, 1.0, 20000);
@@ -863,6 +968,67 @@ static bool detectCollisions() {
 }
 
 //----------------------------------------------------------------------------
+// gravity function
+static void gravity(){
+	glClearColor(1.0, 0.0, 1.0, 1.0);
+
+	GLfloat left = -100.0, right = 100.0;
+	GLfloat bottom = -100.0, top = 100.0;
+	GLfloat zNear = -100.0, zFar = 100.0;
+
+	GLfloat aspect = GLfloat(glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT));
+
+	int centerPixelX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	int centerPixelY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+	if (aspect > 1.0) {
+		left *= aspect;
+		right *= aspect;
+	}
+	else {
+		bottom /= aspect;
+		top /= aspect;
+	}
+
+	mat4 collision = Ortho(left / 2, right / 2, bottom / 2, top / 2, zNear / 2, zFar / 2);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
+	//model_view_start = Translate(0, 80, 0)*model_view_start;
+	model_view_start = RotateX(90)*model_view_start;
+
+	//draw the scene in ortho
+	drawScene();
+	
+	while (true){
+		//bottom
+		unsigned int data;
+		glReadPixels(centerPixelX, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+		data &= 0xffffff;
+		if (data != 0xff00ff) break;
+
+		//top
+		glReadPixels(centerPixelX, GLUT_WINDOW_HEIGHT, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+		data &= 0xffffff;
+		if (data != 0xff00ff) break;
+
+		model_view_start = Translate(0, 0, 5)*model_view_start;
+
+		drawScene();
+	}
+			
+	model_view_start = RotateX(-90)*model_view_start;
+	model_view_start = Translate(0, -80, 0)*model_view_start;
+	
+	if (gravityView) glutSwapBuffers();
+
+	mat4 projection1 = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
+	projection1 = Perspective(50, 1, 1.0, 20000);
+	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
+
+	glClearColor(0.529, 0.808, 0.980, 1.0);
+
+}
+
+//----------------------------------------------------------------------------
 // callback function: handles a mouse-press
 static void mouse(int btn, int state, int x, int y) {
 	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
@@ -876,7 +1042,37 @@ static void mouse(int btn, int state, int x, int y) {
 	}
 }
 
+static void mouseMove(int x, int y){
+	int screen_width = glutGet(GLUT_WINDOW_WIDTH);
+	int screen_height = glutGet(GLUT_WINDOW_HEIGHT);
+	int x_center = screen_width / 2;
+	int y_center = screen_height / 2;
 
+	if (x - x_center > 10){
+		copymv = model_view_start;
+		model_view_start = RotateY(5) * model_view_start;
+		if (detectMouseCollisions()) model_view_start = copymv;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (x - x_center < -10){
+		copymv = model_view_start;
+		model_view_start = RotateY(-5) * model_view_start;
+		if (detectMouseCollisions()) model_view_start = copymv;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (y - y_center > 10){
+		x_rotation += 5;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (y - y_center < -10){
+		x_rotation -= 5;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+}
 //----------------------------------------------------------------------------
 // callback function: handles a window-resizing
 static void reshape(int width, int height) {
@@ -902,12 +1098,10 @@ static void reshape(int width, int height) {
 	
 	// define the projection matrix, based on the computed dimensions;
 	// send the matrix to the GPU
-    mat4 collision = Ortho( left, right, bottom, top, zNear, zFar );
 	mat4 projection = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
 	projection = Perspective(50, 1, 1.0, 20000);
 
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection);
-	glUniformMatrix4fv( CollisionProjection, 1, GL_TRUE, collision );
 	// define the model-view matrix so that it initially does no transformations
     model_view = mat4( 1.0 );   // An Identity matrix
 }
@@ -931,11 +1125,17 @@ static void init(void) {
 	static GLfloat pic[1024][1024][3];
 	static GLfloat pic2[4096][4096][3];
 
+	// Initialize texture objects
+	glGenTextures(14, textures);
+
+	
+
+	readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
+	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);
+
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
-	/*readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
-	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);*/
 	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
 	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -965,7 +1165,7 @@ static void init(void) {
 
 
 	// Initialize texture objects
-	glGenTextures(14, textures);
+	//glGenTextures(14, textures);
 	
 	//house
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -1097,9 +1297,7 @@ static void init(void) {
 		sizeof(normals), normals);
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(points) + sizeof(normals), sizeof(tex_coords),tex_coords);
 
-	
 
-	
 
 	glUseProgram(program);
 
@@ -1117,7 +1315,7 @@ static void init(void) {
 	GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
 	glEnableVertexAttribArray(vTexCoord);
 	glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
-		BUFFER_OFFSET(sizeof(points)+sizeof(normals)));
+		BUFFER_OFFSET(sizeof(points) + sizeof(normals)));
 
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
@@ -1163,6 +1361,7 @@ static void init(void) {
 	for (int i = 0; i < 7; i++){
 		lightStates[i] = 0;
 	}
+	lightStates[0] = 1;
 
 	//SEND LIGHT STATES
 	glUniform1i(glGetUniformLocation(program, "LightStates[0]"), lightStates[0]);
@@ -1172,6 +1371,20 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "LightStates[4]"), lightStates[4]);
 	glUniform1i(glGetUniformLocation(program, "LightStates[5]"), lightStates[5]);
 	glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
+
+	for (int i = 0; i < 7; i++){
+		lightIntensities[i] = 10;
+	}
+	lightIntensities[0] = 200;
+
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[0]"), lightIntensities[0]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[1]"), lightIntensities[1]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[2]"), lightIntensities[2]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[3]"), lightIntensities[3]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[4]"), lightIntensities[4]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[5]"), lightIntensities[5]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[6]"), lightIntensities[6]);
+
 	glUniform1f(glGetUniformLocation(program, "Shininess"),
 		material_shininess);
 
@@ -1187,11 +1400,12 @@ static void init(void) {
 
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
-	glClearColor(0.529, 0.808, 0.980, 1.0); /* light blue background*/
+	backgroundColor = color4(0.529, 0.808, 0.980, 1.0);
+	glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0); /* light blue background*/
 	glShadeModel(GL_SMOOTH);
 
 	// Starting position for the camera	
-	model_view_start = Translate(0, -200, -1000);
+	model_view_start = Translate(0, -180, -1000);
 
 }
 
@@ -1243,7 +1457,7 @@ static void tick(int n) {
 		mapTextures = false;
 
 		//swap the buffers
-		glutSwapBuffers();
+		if (normalView) glutSwapBuffers();
 	}
 }
 
@@ -1262,18 +1476,18 @@ static void keyboard( unsigned char key, int x, int y )
 	case 'w': case 'W':
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, 6.0*factor)*model_view_start;
-		if (detectCollisions()) model_view_start = copymv;
+		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 's': case 'S':
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, -6.0*factor)*model_view_start;
-		if (detectCollisions()) model_view_start = copymv;
+		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 'a': case 'A':
 		copymv = model_view_start;
 		model_view_start = Translate(6.0*factor, 0, 0)*model_view_start;
 		model_view_start = RotateY(-90)*model_view_start;
-		if (detectCollisions()) {
+		if (detectCollisions(key)) {
 			model_view_start = copymv;
 		}
 		else{
@@ -1284,7 +1498,7 @@ static void keyboard( unsigned char key, int x, int y )
 		copymv = model_view_start;
 		model_view_start = Translate(-6.0*factor, 0, 0)*model_view_start;
 		model_view_start = RotateY(90)*model_view_start;
-		if (detectCollisions()) {
+		if (detectCollisions(key)) {
 			model_view_start = copymv;
 		}
 		else{
@@ -1295,7 +1509,7 @@ static void keyboard( unsigned char key, int x, int y )
 		copymv = model_view_start;
 		model_view_start = Translate(0, -6.0*factor, 0)*model_view_start;
 		model_view_start = RotateX(-90)*model_view_start;
-		if (detectCollisions()) {
+		if (detectCollisions(key)) {
 			model_view_start = copymv;
 		}
 		else{
@@ -1306,7 +1520,7 @@ static void keyboard( unsigned char key, int x, int y )
 		copymv = model_view_start;
 		model_view_start = Translate(0, 6.0*factor, 0)*model_view_start;
 		model_view_start = RotateX(90)*model_view_start;
-		if (detectCollisions()) {
+		if (detectCollisions(key)) {
 			model_view_start = copymv;
 		}
 		else{
@@ -1332,12 +1546,31 @@ static void keyboard( unsigned char key, int x, int y )
 		model_view_start = RotateX(1.5*factor)*model_view_start;
 		break;
 	case '[':
+		backgroundColor = color4(0.0, 0.0, 0.14, 1.0);
+		glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 		sceneAmbient = vec4(0.1, 0.1, 0.1, 1.0);
 		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
 	case ']':
+		backgroundColor = color4(0.529, 0.808, 0.980, 1.0);
+		glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 		sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
 		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
+		break;
+	case '1'://collision view
+		collisionView = true;
+		gravityView = false;
+		normalView = false;
+		break;
+	case '2'://gravity view
+		collisionView = false;
+		gravityView = true;
+		normalView = false;
+		break;
+	case '3'://normal view
+		collisionView = false;
+		gravityView = false;
+		normalView = true;
 		break;
 
 	}//NAV SWITCH
@@ -1352,7 +1585,7 @@ int main( int argc, char **argv ) {
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
-	glutCreateWindow("CS 432, Assignment 1");
+	glutCreateWindow("CS 432, House of Awesomenessssss");
 	//glutFullScreen();
 	glewInit();
 
@@ -1365,7 +1598,9 @@ int main( int argc, char **argv ) {
     glutKeyboardFunc(keyboard);
 	glutTimerFunc(TICK_INTERVAL, tick, TICK_INTERVAL); // timer callback
     glutMouseFunc(mouse);
-	
+	glutPassiveMotionFunc(mouseMove);
+	glutSetCursor(GLUT_CURSOR_NONE);
+
 	// start processing
     glutMainLoop();
 	
