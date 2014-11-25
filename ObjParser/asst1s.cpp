@@ -38,11 +38,9 @@ attribute vec4 vColor;\
 varying vec2 texCoord;\
 varying vec4 color; \
 varying vec4 initPick; \
-uniform vec4 AmbientProducts[7];\
-uniform vec4 DiffuseProducts[7];\
-uniform vec4 SpecularProducts[7];\
 uniform vec4 LightPositions[7];\
 uniform int LightStates[7];\
+uniform int LightIntensities[7];\
 uniform vec4 SceneAmbient;\
 uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
@@ -77,12 +75,12 @@ for(i = 0; i < 7; i++){\
 		diffuse += vec4(0.0,0.0,0.0,1.0);\
 		specular += vec4(0.0,0.0,0.0,1.0);\
 	} else { \
-		vec3 L = normalize(LightPositions[i].xyz - pos); \
+		vec3 L = normalize(LightPositions[i].xyz - vPosition.xyz); \
 		vec3 H = normalize(L + E);\
 		float Kd = max(dot(L, N), 0.0);\
-		diffuse += 10 *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
+		diffuse += LightIntensities[i] *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
 		float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-		vec4 specular_i = 10 * (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
+		vec4 specular_i = LightIntensities[i]* (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
 		if (dot(L, N) < 0.0) {\
 			specular += vec4(0.0, 0.0, 0.0, 1.0);\
 		} else {\
@@ -172,6 +170,9 @@ static bool tv2IsOn = false;
 
 //Scene ambient
 vec4 sceneAmbient;
+color4 backgroundColor;
+
+int x_rotation = 0;
 
 GLuint program;
 //----------------------------------------------------------------------------
@@ -435,6 +436,7 @@ static void drawScene() {
 	
 	model_view = model_view_start;
 
+	model_view = RotateX(x_rotation)*model_view;
 	// enter domain for local transformations
     mvstack.push(model_view);
 	
@@ -851,7 +853,7 @@ static bool detectCollisions() {
 	projection1 = Perspective(50, 1, 1.0, 20000);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
 
-	glClearColor(0.529, 0.808, 0.980, 1.0);
+	glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 	
 	//if we hit something return true
 	if (foundObject){
@@ -876,6 +878,37 @@ static void mouse(int btn, int state, int x, int y) {
 	}
 }
 
+static void mouseMove(int x, int y){
+	int screen_width = glutGet(GLUT_WINDOW_WIDTH);
+	int screen_height = glutGet(GLUT_WINDOW_HEIGHT);
+	int x_center = screen_width / 2; 
+	int y_center = screen_height / 2;
+
+	if (x - x_center > 10){
+		copymv = model_view_start;
+		model_view_start = RotateY(5) * model_view_start;
+		if (detectCollisions()) model_view_start = copymv;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (x - x_center < -10){
+		copymv = model_view_start;
+		model_view_start = RotateY(-5) * model_view_start;
+		if (detectCollisions()) model_view_start = copymv;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (y - y_center > 10){
+		x_rotation += 5;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+	if (y - y_center < -10){
+		x_rotation -= 5;
+		glutWarpPointer(x_center, y_center);
+		return;
+	}
+}
 
 //----------------------------------------------------------------------------
 // callback function: handles a window-resizing
@@ -934,14 +967,14 @@ static void init(void) {
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
-	/*readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
-	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);*/
+	readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
+	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);
 	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
 	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image2);
-	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image3);
+	/*readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image3);*/
 	readPpmImage("bed.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image4);
 	readPpmImage("tv.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -952,10 +985,10 @@ static void init(void) {
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image7);
 	readPpmImage("bathtub.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image8);
-	readPpmImage("table.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
+	/*readPpmImage("table.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image9);
 	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);*/
 	readPpmImage("toilet.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image11);
 	readPpmImage("fridge.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1001,7 +1034,7 @@ static void init(void) {
 
 	//endtable
 	glBindTexture(GL_TEXTURE_2D, textures[4]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1050,7 +1083,7 @@ static void init(void) {
 
 	//table
 	glBindTexture(GL_TEXTURE_2D, textures[10]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image9);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1163,6 +1196,7 @@ static void init(void) {
 	for (int i = 0; i < 7; i++){
 		lightStates[i] = 0;
 	}
+	lightStates[0] = 1;
 
 	//SEND LIGHT STATES
 	glUniform1i(glGetUniformLocation(program, "LightStates[0]"), lightStates[0]);
@@ -1172,6 +1206,20 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "LightStates[4]"), lightStates[4]);
 	glUniform1i(glGetUniformLocation(program, "LightStates[5]"), lightStates[5]);
 	glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
+
+	for (int i = 0; i < 7; i++){
+		lightIntensities[i] = 10;
+	}
+	lightIntensities[0] = 200;
+
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[0]"), lightIntensities[0]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[1]"), lightIntensities[1]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[2]"), lightIntensities[2]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[3]"), lightIntensities[3]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[4]"), lightIntensities[4]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[5]"), lightIntensities[5]);
+	glUniform1i(glGetUniformLocation(program, "LightIntensities[6]"), lightIntensities[6]);
+
 	glUniform1f(glGetUniformLocation(program, "Shininess"),
 		material_shininess);
 
@@ -1187,7 +1235,8 @@ static void init(void) {
 
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
-	glClearColor(0.529, 0.808, 0.980, 1.0); /* light blue background*/
+	backgroundColor = color4(0.529, 0.808, 0.980, 1.0);
+	glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0); /* light blue background*/
 	glShadeModel(GL_SMOOTH);
 
 	// Starting position for the camera	
@@ -1332,10 +1381,14 @@ static void keyboard( unsigned char key, int x, int y )
 		model_view_start = RotateX(1.5*factor)*model_view_start;
 		break;
 	case '[':
+		backgroundColor = color4(0.0, 0.0, 0.14, 1.0);
+		glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 		sceneAmbient = vec4(0.1, 0.1, 0.1, 1.0);
 		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
 	case ']':
+		backgroundColor = color4(0.529, 0.808, 0.980, 1.0);
+		glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 		sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
 		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
@@ -1365,7 +1418,8 @@ int main( int argc, char **argv ) {
     glutKeyboardFunc(keyboard);
 	glutTimerFunc(TICK_INTERVAL, tick, TICK_INTERVAL); // timer callback
     glutMouseFunc(mouse);
-	
+	glutPassiveMotionFunc(mouseMove);
+	glutSetCursor(GLUT_CURSOR_NONE);
 	// start processing
     glutMainLoop();
 	
