@@ -991,9 +991,8 @@ static void gravity(){
 		top /= aspect;
 	}
 
-	mat4 collision = Ortho(left / 2, right / 2, bottom / 2, top / 2, zNear / 2, zFar / 2);
+	mat4 collision = Ortho(left / 2, right / 2, bottom / 2, top / 2 , zNear / 8, zFar*1.1);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
-	//model_view_start = Translate(0, 80, 0)*model_view_start;
 	model_view_start = RotateX(90)*model_view_start;
 
 	//draw the scene in ortho
@@ -1017,7 +1016,6 @@ static void gravity(){
 	}
 			
 	model_view_start = RotateX(-90)*model_view_start;
-	model_view_start = Translate(0, -80, 0)*model_view_start;
 	
 	if (gravityView) glutSwapBuffers();
 
@@ -1141,7 +1139,6 @@ static void init(void) {
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
-
 	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
 	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1405,7 +1402,7 @@ static void init(void) {
 	glShadeModel(GL_SMOOTH);
 
 	// Starting position for the camera	
-	model_view_start = Translate(0, -140, -1000);
+	model_view_start = Translate(0, -180, -1000);
 
 }
 
@@ -1474,16 +1471,19 @@ static void keyboard( unsigned char key, int x, int y )
 		exit(EXIT_SUCCESS);
 		break;
 	case 'w': case 'W':
+		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, 6.0*factor)*model_view_start;
 		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 's': case 'S':
+		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, -6.0*factor)*model_view_start;
 		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 'a': case 'A':
+		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(6.0*factor, 0, 0)*model_view_start;
 		model_view_start = RotateY(-90)*model_view_start;
@@ -1495,6 +1495,7 @@ static void keyboard( unsigned char key, int x, int y )
 		}
 		break;
 	case 'd': case 'D':
+		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(-6.0*factor, 0, 0)*model_view_start;
 		model_view_start = RotateY(90)*model_view_start;
