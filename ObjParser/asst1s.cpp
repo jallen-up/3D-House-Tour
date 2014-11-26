@@ -442,6 +442,7 @@ static void drawScene() {
 	
 	model_view = model_view_start;
 
+	model_view = RotateX(x_rotation)*model_view;
 	// enter domain for local transformations
     mvstack.push(model_view);
 	
@@ -956,7 +957,7 @@ static bool detectCollisions(unsigned char key) {
 	projection1 = Perspective(50, 1, 1.0, 20000);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection1);
 
-	glClearColor(0.529, 0.808, 0.980, 1.0);
+	glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
 	
 	//if we hit something return true
 	if (foundObject){
@@ -1045,20 +1046,23 @@ static void mouse(int btn, int state, int x, int y) {
 static void mouseMove(int x, int y){
 	int screen_width = glutGet(GLUT_WINDOW_WIDTH);
 	int screen_height = glutGet(GLUT_WINDOW_HEIGHT);
-	int x_center = screen_width / 2;
+
+	int x_center = screen_width / 2; 
 	int y_center = screen_height / 2;
 
 	if (x - x_center > 10){
 		copymv = model_view_start;
 		model_view_start = RotateY(5) * model_view_start;
-		if (detectMouseCollisions()) model_view_start = copymv;
+		//insert dummy key
+		if (detectCollisions('m')) model_view_start = copymv;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
 	if (x - x_center < -10){
 		copymv = model_view_start;
 		model_view_start = RotateY(-5) * model_view_start;
-		if (detectMouseCollisions()) model_view_start = copymv;
+		//insert dummy key
+		if (detectCollisions('n')) model_view_start = copymv;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
@@ -1073,7 +1077,8 @@ static void mouseMove(int x, int y){
 		return;
 	}
 }
-//----------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
 // callback function: handles a window-resizing
 static void reshape(int width, int height) {
     glViewport(0, 0, width, height);
@@ -1136,12 +1141,11 @@ static void init(void) {
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
+
 	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
 	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image2);
-	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image3);
 	readPpmImage("bed.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image4);
 	readPpmImage("tv.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1152,10 +1156,6 @@ static void init(void) {
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image7);
 	readPpmImage("bathtub.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image8);
-	readPpmImage("table.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image9);
-	readPpmImage("chair.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image10);
 	readPpmImage("toilet.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
 	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image11);
 	readPpmImage("fridge.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1165,7 +1165,7 @@ static void init(void) {
 
 
 	// Initialize texture objects
-	//glGenTextures(14, textures);
+	glGenTextures(14, textures);
 	
 	//house
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -1201,7 +1201,7 @@ static void init(void) {
 
 	//endtable
 	glBindTexture(GL_TEXTURE_2D, textures[4]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1250,7 +1250,7 @@ static void init(void) {
 
 	//table
 	glBindTexture(GL_TEXTURE_2D, textures[10]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image9);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureSize, TextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
