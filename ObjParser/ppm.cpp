@@ -12,7 +12,7 @@
 //   - x and y: in the target array for the lower-left pixel
 //   - width: the width of the target-array
 //   - height: the height of the target-array
-bool readPpmImage(char *filename, GLfloat *target, int x, int y,
+bool readPpmImage(char *filename, GLubyte *target, int x, int y,
 				  int width, int height) {
 
 	// open the file
@@ -74,9 +74,9 @@ bool readPpmImage(char *filename, GLfloat *target, int x, int y,
 				yyModified >= 0 && xxModified >= 0) {
 				// we need to do the address-arithmetic ourselves to simulate a
 				// 3D array of size heightXwidth
-				target[3*(yyModified*width+xxModified)+0] = (GLfloat)red/maxValue;
-				target[3*(yyModified*width+xxModified)+1] = (GLfloat)green/maxValue;
-				target[3*(yyModified*width+xxModified)+2] = (GLfloat)blue/maxValue;
+				target[3*(yyModified*width+xxModified)+0] = red;
+				target[3*(yyModified*width+xxModified)+1] = green;
+				target[3*(yyModified*width+xxModified)+2] = blue;
 			}
 		}
 	}

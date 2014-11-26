@@ -78,9 +78,9 @@ for(i = 0; i < 7; i++){\
 		vec3 L = normalize(LightPositions[i].xyz - vPosition.xyz); \
 		vec3 H = normalize(L + E);\
 		float Kd = max(dot(L, N), 0.0);\
-		diffuse += LightIntensities[i] *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
+		diffuse += (LightIntensities[i]/2) *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
 		float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-		vec4 specular_i = LightIntensities[i]* (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
+		vec4 specular_i = (LightIntensities[i]/2)* (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
 		if (dot(L, N) < 0.0) {\
 			specular += vec4(0.0, 0.0, 0.0, 1.0);\
 		} else {\
@@ -1044,6 +1044,7 @@ static void mouse(int btn, int state, int x, int y) {
 }
 
 static void mouseMove(int x, int y){
+	cout << x_rotation << endl;
 	int screen_width = glutGet(GLUT_WINDOW_WIDTH);
 	int screen_height = glutGet(GLUT_WINDOW_HEIGHT);
 
@@ -1054,7 +1055,7 @@ static void mouseMove(int x, int y){
 		copymv = model_view_start;
 		model_view_start = RotateY(5) * model_view_start;
 		//insert dummy key
-		if (detectCollisions('m')) model_view_start = copymv;
+		//if (detectCollisions('m')) model_view_start = copymv;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
@@ -1062,17 +1063,17 @@ static void mouseMove(int x, int y){
 		copymv = model_view_start;
 		model_view_start = RotateY(-5) * model_view_start;
 		//insert dummy key
-		if (detectCollisions('n')) model_view_start = copymv;
+		//if (detectCollisions('n')) model_view_start = copymv;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
 	if (y - y_center > 10){
-		x_rotation += 5;
+		if ((x_rotation + 5) < 45 && (x_rotation + 5)  > -85) x_rotation += 5;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
 	if (y - y_center < -10){
-		x_rotation -= 5;
+		if ((x_rotation - 5) < 45 && (x_rotation - 5)  > -85) x_rotation -= 5;
 		glutWarpPointer(x_center, y_center);
 		return;
 	}
@@ -1128,39 +1129,23 @@ static void init(void) {
 	}
 
 	static GLfloat pic[1024][1024][3];
-	static GLfloat pic2[4096][4096][3];
 
 	// Initialize texture objects
 	glGenTextures(14, textures);
 
-	
-
-	readPpmImage("house_1024.ppm", (GLfloat*)pic, 0, 0, 1024, 1024);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, houseImage);
-
+	readPpmImage("house_1024.ppm", (GLubyte*)houseImage, 0, 0, 1024, 1024);
 	//Read .ppm texture image
-	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image);
-	readPpmImage("couch.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image1);
-	readPpmImage("bookshelf.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image2);
-	readPpmImage("bed.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image4);
-	readPpmImage("tv.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image5);
-	readPpmImage("tv_on.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image6);
-	readPpmImage("tree.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image7);
-	readPpmImage("bathtub.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image8);
-	readPpmImage("toilet.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image11);
-	readPpmImage("fridge.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image12);
-	readPpmImage("lamp.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
-	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, image13);
+	readPpmImage("door.ppm", (GLubyte*)image, 0, 0, TextureSize, TextureSize);
+	readPpmImage("couch.ppm", (GLubyte*)image1, 0, 0, TextureSize, TextureSize);
+	readPpmImage("bookshelf.ppm", (GLubyte*)image2, 0, 0, TextureSize, TextureSize);
+	readPpmImage("bed.ppm", (GLubyte*)image4, 0, 0, TextureSize, TextureSize);
+	readPpmImage("tv.ppm", (GLubyte*)image5, 0, 0, TextureSize, TextureSize);
+	readPpmImage("tv_on.ppm", (GLubyte*)image6, 0, 0, TextureSize, TextureSize);
+	readPpmImage("tree.ppm", (GLubyte*)image7, 0, 0, TextureSize, TextureSize);
+	readPpmImage("bathtub.ppm", (GLubyte*)image8, 0, 0, TextureSize, TextureSize);
+	readPpmImage("toilet.ppm", (GLubyte*)image11, 0, 0, TextureSize, TextureSize);
+	readPpmImage("fridge.ppm", (GLubyte*)image12, 0, 0, TextureSize, TextureSize);
+	readPpmImage("lamp.ppm", (GLubyte*)image13, 0, 0, TextureSize, TextureSize);
 
 
 	// Initialize texture objects
@@ -1338,8 +1323,8 @@ static void init(void) {
 	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
 
 	point4 light_position(2000.0, 0.0, 0.0, 0.0); //Sun
-	point4 light_position1(17.0, 5.0, -14, 0.0); //Living room
-	point4 light_position2(-17.0, 5.0, -14, 0.0); //Kitchen
+	point4 light_position1(17.0, 5.0, -13, 0.0); //Living room
+	point4 light_position2(-17.0, 5.0, -13, 0.0); //Kitchen
 	point4 light_position3(-17.0, 10.0, -14, 0.0); //Master Bedroom
 	point4 light_position4(17.0, 10.0, -14, 0.0); //Bathroom
 	point4 light_position5(17.0, 10.0, 6, 0.0); //Small Bedroom	
@@ -1354,7 +1339,7 @@ static void init(void) {
 	glUniform4fv(glGetUniformLocation(program, "LightPositions[6]"), 1, light_position6);
 
 	//Initialize the ambient lighting for the scene
-	sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
+	sceneAmbient = vec4(0.4, 0.4, 0.4, 1.0);
 	glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 
 	for (int i = 0; i < 7; i++){
@@ -1372,7 +1357,7 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
 
 	for (int i = 0; i < 7; i++){
-		lightIntensities[i] = 7;
+		lightIntensities[i] = 9;
 	}
 	lightIntensities[0] = 300;
 
@@ -1557,7 +1542,7 @@ static void keyboard( unsigned char key, int x, int y )
 	case ']':
 		backgroundColor = color4(0.529, 0.808, 0.980, 1.0);
 		glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0);
-		sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
+		sceneAmbient = vec4(0.4, 0.4, 0.4, 1.0);
 		glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 		break;
 	case '1'://collision view
