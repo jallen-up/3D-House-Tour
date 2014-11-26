@@ -1405,7 +1405,7 @@ static void init(void) {
 	glShadeModel(GL_SMOOTH);
 
 	// Starting position for the camera	
-	model_view_start = Translate(0, -180, -1000);
+	model_view_start = Translate(0, -140, -1000);
 
 }
 
