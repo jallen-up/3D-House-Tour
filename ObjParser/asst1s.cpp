@@ -144,7 +144,7 @@ GLubyte image12[TextureSize][TextureSize][3];
 GLubyte image13[TextureSize][TextureSize][3];
 
 
-GLubyte houseImage[4096][4096][3];
+GLubyte houseImage[1024][1024][3];
 
 vec2    tex_coords[NumVertices];
 
@@ -900,8 +900,10 @@ static bool detectCollisions(unsigned char key) {
 
 	//draw the scene in ortho
 	drawScene();
-	int collisionWidth = glutGet(GLUT_WINDOW_WIDTH) / 20;
-	int collisionHeight = glutGet(GLUT_WINDOW_HEIGHT) / 20;
+	/*int collisionWidth = glutGet(GLUT_WINDOW_WIDTH) / 20;
+	int collisionHeight = glutGet(GLUT_WINDOW_HEIGHT) / 20;*/
+	int collisionWidth = 20;
+	int collisionHeight = 20; 
 	int centerPixelX = glutGet(GLUT_WINDOW_WIDTH) / 2;
 	int centerPixelY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
 	bool foundObject = false;
@@ -994,7 +996,7 @@ static void gravity(){
 	mat4 collision = Ortho(left / 2, right / 2, bottom / 2, top / 2 , zNear / 8, zFar*1.1);
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, collision);
 	model_view_start = RotateX(90)*model_view_start;
-
+	//model_view = RotateX(-x_rotation)*model_view;
 	//draw the scene in ortho
 	drawScene();
 	
@@ -1133,8 +1135,8 @@ static void init(void) {
 
 	
 
-	readPpmImage("house.ppm", (GLfloat*)pic2, 0, 0, 4096, 4096);
-	gluScaleImage(GL_RGB, 4096, 4096, GL_FLOAT, pic2, 4096, 4096, GL_BYTE, houseImage);
+	readPpmImage("house_1024.ppm", (GLfloat*)pic, 0, 0, 1024, 1024);
+	gluScaleImage(GL_RGB, 1024, 1024, GL_FLOAT, pic, 1024, 1024, GL_BYTE, houseImage);
 
 	//Read .ppm texture image
 	readPpmImage("door.ppm", (GLfloat*)pic, 0, 0, TextureSize, TextureSize);
@@ -1166,7 +1168,7 @@ static void init(void) {
 	
 	//house
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 4096, 4096, 0, GL_RGB, GL_UNSIGNED_BYTE, houseImage);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, houseImage);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1352,7 +1354,7 @@ static void init(void) {
 	glUniform4fv(glGetUniformLocation(program, "LightPositions[6]"), 1, light_position6);
 
 	//Initialize the ambient lighting for the scene
-	sceneAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+	sceneAmbient = vec4(0.6, 0.6, 0.6, 1.0);
 	glUniform4fv(glGetUniformLocation(program, "SceneAmbient"), 1, sceneAmbient);
 
 	for (int i = 0; i < 7; i++){
@@ -1370,9 +1372,9 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
 
 	for (int i = 0; i < 7; i++){
-		lightIntensities[i] = 10;
+		lightIntensities[i] = 7;
 	}
-	lightIntensities[0] = 200;
+	lightIntensities[0] = 300;
 
 	glUniform1i(glGetUniformLocation(program, "LightIntensities[0]"), lightIntensities[0]);
 	glUniform1i(glGetUniformLocation(program, "LightIntensities[1]"), lightIntensities[1]);
