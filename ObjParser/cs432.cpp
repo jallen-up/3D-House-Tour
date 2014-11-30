@@ -126,6 +126,7 @@ InitShader2(const GLchar* vShaderCode, const GLchar* fShaderCode)
 			char* logMsg = new char[logSize];
 			glGetShaderInfoLog( shader, logSize, NULL, logMsg );
 			std::cerr << logMsg << std::endl;
+			std::cin.get();
 			delete [] logMsg;
 			
 			exit( EXIT_FAILURE );

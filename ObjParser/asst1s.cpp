@@ -18,8 +18,8 @@ using namespace std;
 // The initial size and position of our window
 #define INIT_WINDOW_XPOS 100
 #define INIT_WINDOW_YPOS 100
-#define INIT_WINDOW_WIDTH 500
-#define INIT_WINDOW_HEIGHT 500
+#define INIT_WINDOW_WIDTH 800
+#define INIT_WINDOW_HEIGHT 800
 
 // The time between ticks, in milliseconds
 #define TICK_INTERVAL 50
@@ -35,77 +35,83 @@ attribute vec4 vPosition; \
 attribute vec3 vNormal;\
 attribute vec2 vTexCoord;\
 attribute vec4 vColor;\
+varying vec3 fN;\
+varying vec4 fE;\
+varying vec3 fL;\
 varying vec2 texCoord;\
 varying vec4 color; \
 varying vec4 initPick; \
-uniform vec4 LightPositions[7];\
-uniform int LightStates[7];\
-uniform int LightIntensities[7];\
-uniform vec4 SceneAmbient;\
-uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
 uniform mat4 ModelView; \
 uniform mat4 Projection; \
-uniform mat4 CollisionProjection;\
-uniform vec4 VariableColor; \
-uniform vec4 LightPosition;\
 uniform vec4 PickColor;\
-uniform float Shininess;\
 \
 void main() \
 { \
 initPick = PickColor;\
+\
 if (PickColor.a >= 0.0) { \
-color = PickColor; \
+	color = PickColor; \
 }\
 else {  \
-texCoord = vTexCoord;\
-vec3 pos = (ModelView * vPosition).xyz;\
-vec3 test = (ModelView * LightPosition).xyz;\
-vec3 L = normalize(test.xyz - pos);\
-vec3 E = normalize(-pos);\
-vec3 H = normalize(L + E);\
-vec3 N = vNormal;\
-vec4 ambient = SceneAmbient;\
-vec4 diffuse = vec4(0.0,0.0,0.0,1.0);\
-vec4 specular = vec4(0.0,0.0,0.0,1.0);\
-int i = 0;\
-for(i = 0; i < 7; i++){\
-	if( LightStates[i] == 0 ){\
-		ambient += vec4(0.0,0.0,0.0,1.0);\
-		diffuse += vec4(0.0,0.0,0.0,1.0);\
-		specular += vec4(0.0,0.0,0.0,1.0);\
-	} else { \
-		vec3 L = normalize(LightPositions[i].xyz - vPosition.xyz); \
-		vec3 H = normalize(L + E);\
-		float Kd = max(dot(L, N), 0.0);\
-		diffuse += (LightIntensities[i]/2) *(Kd*DiffuseProduct) / distance(LightPositions[i].xyz,vPosition.xyz);\
-		float Ks = pow(max(dot(N, H), 0.0), Shininess);\
-		vec4 specular_i = (LightIntensities[i]/2)* (Ks * SpecularProduct)/distance(LightPositions[i].xyz,vPosition.xyz);\
-		if (dot(L, N) < 0.0) {\
-			specular += vec4(0.0, 0.0, 0.0, 1.0);\
-		} else {\
-			specular += specular_i;\
-		}\
-	}\
-}\
-	color = ambient + diffuse + specular;\
+	texCoord = vTexCoord;\
+	fE = vPosition;\
+	fN = vNormal;\
 }\
 gl_Position = Projection*ModelView*vPosition; \
 }  \
 "
 #define FRAGMENT_SHADER_CODE "\
+varying vec3 fN;\
+varying vec4 fE;\
+varying vec3 fL;\
 varying vec2 texCoord;\
 varying  vec4 color; \
 varying vec4 initPick; \
 uniform sampler2D texture;\
+uniform vec4 SceneAmbient;\
+uniform mat4 ModelView; \
+uniform vec4 LightPositions[7];\
+uniform int LightStates[7];\
+uniform int LightIntensities[7];\
+uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;\
+uniform float Shininess;\
 void main() \
 { \
-if (initPick.a >= 0.0) {\
-gl_FragColor = color; \
-}\
-else { \
-gl_FragColor = color*texture2D(texture,texCoord); \
-} \
+	if (initPick.a >= 0.0) {\
+		gl_FragColor = color; \
+	}\
+	else { \
+		vec3 pos = (ModelView * fE).xyz;\
+		vec3 E = normalize(-pos);\
+		vec3 N = fN;\
+		vec3 test = normalize(fN);\
+		vec4 ambient = SceneAmbient;\
+		vec4 diffuse = vec4(0.0,0.0,0.0,1.0);\
+		vec4 specular = vec4(0.0,0.0,0.0,1.0);\
+	int i = 0;\
+	for(i = 0; i < 7; i++){\
+		if( LightStates[i] == 0 ){\
+			ambient += vec4(0.0,0.0,0.0,1.0);\
+			diffuse += vec4(0.0,0.0,0.0,1.0);\
+			specular += vec4(0.0,0.0,0.0,1.0);\
+		} else { \
+			vec3 L = normalize(LightPositions[i].xyz - fE); \
+			vec3 H = normalize(L - pos);\
+			float Kd = max(dot(L, N), 0.0);\
+			diffuse += (LightIntensities[i] *Kd*DiffuseProduct) / (distance(LightPositions[i].xyz,fE));\
+			float Ks = pow(max(dot(fN, H), 0.0), Shininess);\
+			vec4 specular_i = (Ks * SpecularProduct)/ distance(LightPositions[i].xyz,fE);\
+			/*specularity seems to have a bug*/\
+			if (dot(L, N) < 0.0) {\
+				specular += vec4(0.0, 0.0, 0.0, 1.0);\
+			} else {\
+				specular += specular_i;\
+			}\
+		}\
+	}\
+	vec4 c = ambient + diffuse + specular;\
+	gl_FragColor = c*texture2D(texture,texCoord); \
+	} \
 } \
 "
 
@@ -180,6 +186,9 @@ color4 backgroundColor;
 int x_rotation = 0;
 GLfloat personHeight = 100.0;
 
+int x_position;
+int y_position;
+
 GLuint program;
 //----------------------------------------------------------------------------
 // our matrix stack
@@ -198,7 +207,6 @@ static int Index = 0;
 //-----------------------------------------------------------------------------
 //dominoFall-callback
 static void activateCallback(int code) {
-	cout << "pickID: " << code << endl;
 	if ((code != 0) && (doorStates[code - 1] == CLOSED)){
 		doorStates[code - 1] = CTO;
 	}
@@ -630,7 +638,7 @@ static void drawScene() {
 		model_view *= Translate(9, 7, -2);
 		model_view *= Scale(1, 0.8, 1);
 		glUniformMatrix4fv(ModelView, 1, GL_TRUE, model_view);
-		setPickId(9 + numDoors);
+		setPickId(10 + numDoors);
 		if (mapTextures) glBindTexture(GL_TEXTURE_2D, textures[13]);
 		glDrawArrays(GL_TRIANGLES, objects[5].getStartIdx(), objects[5].getCount());
 		clearPickId();
@@ -1013,7 +1021,12 @@ static void gravity(){
 		if (data != 0xff00ff) break;
 
 		model_view_start = Translate(0, 0, 5)*model_view_start;
+		//cout << model_view_start[0].w << " " << model_view_start[1].w << " " << model_view_start[2].w << endl;
 
+		if (model_view_start[2].w > 3000){
+			model_view_start = Translate(0, -180, -1000);
+			return;
+		}
 		drawScene();
 	}
 			
@@ -1044,7 +1057,6 @@ static void mouse(int btn, int state, int x, int y) {
 }
 
 static void mouseMove(int x, int y){
-	cout << x_rotation << endl;
 	int screen_width = glutGet(GLUT_WINDOW_WIDTH);
 	int screen_height = glutGet(GLUT_WINDOW_HEIGHT);
 
@@ -1092,7 +1104,9 @@ static void reshape(int width, int height) {
 	// scale everything by the smallest of the two window-dimensions, so that
 	// everything is visible. The larger dimension will "see" more
     GLfloat aspect = GLfloat( width ) / height;
-	
+	GLfloat widthRatio = (float)width / INIT_WINDOW_WIDTH;
+	GLfloat heightRatio = (float)height / INIT_WINDOW_HEIGHT;
+
     if ( aspect > 1.0 ) {
         left *= aspect;
         right *= aspect;
@@ -1101,7 +1115,7 @@ static void reshape(int width, int height) {
         bottom /= aspect;
         top /= aspect;
     }
-	
+
 	// define the projection matrix, based on the computed dimensions;
 	// send the matrix to the GPU
 	mat4 projection = Frustum(left, right, bottom, top, 1.0, zNear + zFar);
@@ -1304,13 +1318,13 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
 	//Material properties
-	color4 material_ambient(0.0, 0.5, 0.5, 1.0);
+	color4 material_ambient(0.5, 0.5, 0.5, 1.0);
 	color4 material_diffuse(0.5, 0.5, 0.5, 1.0);
-	color4 material_specular(1.0, 1.0, 1.0, 1.0);
+	color4 material_specular(0.5, 0.5, 0.5, 1.0);
 	float  material_shininess = 1.0;
 
 	//Light Properties
-	color4 light_ambient(0.2, 0.2, 0.2, 1.0);
+	color4 light_ambient(0.5, 0.5, 0.5, 1.0);
 	color4 light_diffuse(0.5, 0.5, 0.5, 1.0);
 	color4 light_specular(1.0, 1.0, 1.0, 1.0);
 
@@ -1323,12 +1337,12 @@ static void init(void) {
 	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, specular_product);
 
 	point4 light_position(2000.0, 0.0, 0.0, 0.0); //Sun
-	point4 light_position1(17.0, 5.0, -13, 0.0); //Living room
-	point4 light_position2(-17.0, 5.0, -13, 0.0); //Kitchen
-	point4 light_position3(-17.0, 10.0, -14, 0.0); //Master Bedroom
-	point4 light_position4(17.0, 10.0, -14, 0.0); //Bathroom
-	point4 light_position5(17.0, 10.0, 6, 0.0); //Small Bedroom	
-	point4 light_position6(6.0, 10.0, -2.0, 0.0); //Foyer
+	point4 light_position1(18.0, 5.0, -12.5, 0.0); //Living room
+	point4 light_position2(-18.0, 5.0, -12.5, 0.0); //Kitchen
+	point4 light_position3(-18.0, 11.0, -12.5, 0.0); //Master Bedroom
+	point4 light_position4(18.0, 11.0, -12.5, 0.0); //Bathroom
+	point4 light_position5(18.0, 11.0, 8, 0.0); //Small Bedroom	
+	point4 light_position6(8, 11.0, -2.0, 0.0); //Foyer
 
 	glUniform4fv(glGetUniformLocation(program, "LightPositions[0]"), 1, light_position);
 	glUniform4fv(glGetUniformLocation(program, "LightPositions[1]"), 1, light_position1);
@@ -1357,7 +1371,7 @@ static void init(void) {
 	glUniform1i(glGetUniformLocation(program, "LightStates[6]"), lightStates[6]);
 
 	for (int i = 0; i < 7; i++){
-		lightIntensities[i] = 9;
+		lightIntensities[i] = 10;
 	}
 	lightIntensities[0] = 300;
 
@@ -1458,18 +1472,21 @@ static void keyboard( unsigned char key, int x, int y )
 		exit(EXIT_SUCCESS);
 		break;
 	case 'w': case 'W':
+	
 		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, 6.0*factor)*model_view_start;
 		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 's': case 'S':
+		
 		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(0, 0, -6.0*factor)*model_view_start;
 		if (detectCollisions(key)) model_view_start = copymv;
 		break;
 	case 'a': case 'A':
+		
 		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(6.0*factor, 0, 0)*model_view_start;
@@ -1482,6 +1499,7 @@ static void keyboard( unsigned char key, int x, int y )
 		}
 		break;
 	case 'd': case 'D':
+		
 		gravity();
 		copymv = model_view_start;
 		model_view_start = Translate(-6.0*factor, 0, 0)*model_view_start;
@@ -1560,6 +1578,9 @@ static void keyboard( unsigned char key, int x, int y )
 		gravityView = false;
 		normalView = true;
 		break;
+	case 't':
+		model_view_start = Translate(0, -180, -1000);
+		break;
 
 	}//NAV SWITCH
 }
@@ -1573,7 +1594,7 @@ int main( int argc, char **argv ) {
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
-	glutCreateWindow("CS 432, House of Awesomenessssss");
+	glutCreateWindow("~ Purgatory ~");
 	//glutFullScreen();
 	glewInit();
 
