@@ -1,4 +1,10 @@
-// Starter file for CS 432, Assignment 5.
+// CS 432, Assignment 5.
+//
+// Authors: John Allen, Seth Schneider
+// Date: 11/30/2014
+//
+// Child Simulator 2014
+//
 
 #include "cs432.h"
 #include "vec.h"

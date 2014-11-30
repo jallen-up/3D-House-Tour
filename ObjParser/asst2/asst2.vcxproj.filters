@@ -33,10 +33,10 @@
     <ClCompile Include="..\ppm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\asst1s.cpp">
+    <ClCompile Include="..\picking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\picking.cpp">
+    <ClCompile Include="..\asst1s.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -44,11 +44,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\include;C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\include;C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\lib;C:\Users\ColdFireSeth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\glew-1.7.0\lib;C:\Users\Seth\Documents\Visual Studio 2013\Projects\cs432Windows\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
