@@ -16,10 +16,10 @@
 using namespace std;
 
 // The initial size and position of our window
-#define INIT_WINDOW_XPOS 100
-#define INIT_WINDOW_YPOS 100
-#define INIT_WINDOW_WIDTH 800
-#define INIT_WINDOW_HEIGHT 800
+#define INIT_WINDOW_XPOS 10
+#define INIT_WINDOW_YPOS 10
+#define INIT_WINDOW_WIDTH 500
+#define INIT_WINDOW_HEIGHT 500
 
 // The time between ticks, in milliseconds
 #define TICK_INTERVAL 50
@@ -95,12 +95,12 @@ void main() \
 			diffuse += vec4(0.0,0.0,0.0,1.0);\
 			specular += vec4(0.0,0.0,0.0,1.0);\
 		} else { \
-			vec3 L = normalize(LightPositions[i].xyz - fE); \
+			vec3 L = normalize(LightPositions[i].xyz - fE.xyz); \
 			vec3 H = normalize(L - pos);\
 			float Kd = max(dot(L, N), 0.0);\
-			diffuse += (LightIntensities[i] *Kd*DiffuseProduct) / (distance(LightPositions[i].xyz,fE));\
+			diffuse += (LightIntensities[i] *Kd*DiffuseProduct) / (distance(LightPositions[i].xyz,fE.xyz));\
 			float Ks = pow(max(dot(fN, H), 0.0), Shininess);\
-			vec4 specular_i = (Ks * SpecularProduct)/ distance(LightPositions[i].xyz,fE);\
+			vec4 specular_i = (Ks * SpecularProduct)/ distance(LightPositions[i].xyz,fE.xyz);\
 			/*specularity seems to have a bug*/\
 			if (dot(L, N) < 0.0) {\
 				specular += vec4(0.0, 0.0, 0.0, 1.0);\
@@ -137,14 +137,14 @@ bool mapTextures;
 GLubyte image[TextureSize][TextureSize][3];
 GLubyte image1[TextureSize][TextureSize][3];
 GLubyte image2[TextureSize][TextureSize][3];
-GLubyte image3[TextureSize][TextureSize][3];
+//GLubyte image3[TextureSize][TextureSize][3];
 GLubyte image4[TextureSize][TextureSize][3];
 GLubyte image5[TextureSize][TextureSize][3];
 GLubyte image6[TextureSize][TextureSize][3];
 GLubyte image7[TextureSize][TextureSize][3];
 GLubyte image8[TextureSize][TextureSize][3];
-GLubyte image9[TextureSize][TextureSize][3];
-GLubyte image10[TextureSize][TextureSize][3];
+//GLubyte image9[TextureSize][TextureSize][3];
+//GLubyte image10[TextureSize][TextureSize][3];
 GLubyte image11[TextureSize][TextureSize][3];
 GLubyte image12[TextureSize][TextureSize][3];
 GLubyte image13[TextureSize][TextureSize][3];
@@ -945,16 +945,16 @@ static bool detectCollisions(unsigned char key) {
 	if ((foundObject1) && (!foundObject)){
 		switch (key){
 		case 'w': case 'W':
-			model_view_start = Translate(0, -25, 2)*model_view_start;
+			model_view_start = Translate(0, -20, 2)*model_view_start;
 			break;
 		case 's': case 'S':
-			model_view_start = Translate(0, -25, -2)*model_view_start;
+			model_view_start = Translate(0, -20, -2)*model_view_start;
 			break;
 		case 'a': case 'A':
-			model_view_start = Translate(2, -25, 0)*model_view_start;
+			model_view_start = Translate(2, -20, 0)*model_view_start;
 			break;
 		case 'd': case 'D':
-			model_view_start = Translate(-2, -25, 0)*model_view_start;
+			model_view_start = Translate(-2, -20, 0)*model_view_start;
 			break;
 		}
 
@@ -1020,7 +1020,7 @@ static void gravity(){
 		data &= 0xffffff;
 		if (data != 0xff00ff) break;
 
-		model_view_start = Translate(0, 0, 5)*model_view_start;
+		model_view_start = Translate(0, 0, 10)*model_view_start;
 		//cout << model_view_start[0].w << " " << model_view_start[1].w << " " << model_view_start[2].w << endl;
 
 		if (model_view_start[2].w > 3000){
@@ -1465,7 +1465,7 @@ static void tick(int n) {
 static void keyboard( unsigned char key, int x, int y )
 {
 	
-	int factor = (key <= 'Z') ? 6.0 : 1.0;
+	int factor = (key <= 'Z') ? 4.0 : 1.0;
 	switch (key) {
 	case 033: // Escape Key
 	case 'q': case 'Q':
@@ -1594,7 +1594,7 @@ int main( int argc, char **argv ) {
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowPosition(INIT_WINDOW_XPOS, INIT_WINDOW_YPOS);
 	glutInitWindowSize(INIT_WINDOW_WIDTH,INIT_WINDOW_HEIGHT);
-	glutCreateWindow("~ Purgatory ~");
+	glutCreateWindow("~ Child Simulator 2014 ~");
 	//glutFullScreen();
 	glewInit();
 
